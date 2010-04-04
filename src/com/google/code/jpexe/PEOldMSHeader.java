@@ -18,11 +18,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
  */
 
-/*
- * PEOldMSHeader.java
- *
- * Created on 28 juillet 2003, 22:05
- */
 package com.google.code.jpexe;
 
 import java.io.*;

@@ -18,11 +18,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
  */
 
-/*
- * PEResourceDirectory.java
- *
- * Created on 2 ao�t 2003, 01:28
- */
 package com.google.code.jpexe;
 
 import java.util.*;

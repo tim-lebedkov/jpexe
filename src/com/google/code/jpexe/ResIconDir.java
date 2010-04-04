@@ -19,10 +19,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 package com.google.code.jpexe;
 
-import java.util.*;
-import java.io.*;
 import java.nio.*;
-import java.nio.channels.*;
 
 public class ResIconDir {
 

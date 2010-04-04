@@ -17,18 +17,10 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
  */
-
-/*
- * ResIcon.java
- *
- * Created on 17 ao�t 2003, 22:51
- */
 package com.google.code.jpexe;
 
 import java.util.*;
-import java.io.*;
 import java.nio.*;
-import java.nio.channels.*;
 import java.awt.*;
 import java.awt.image.*;
 

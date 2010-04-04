@@ -17,12 +17,6 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
  */
-
-/*
- * PESection.java
- *
- * Created on 29 juillet 2003, 21:34
- */
 package com.google.code.jpexe;
 
 import java.io.*;

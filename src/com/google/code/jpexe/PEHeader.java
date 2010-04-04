@@ -18,11 +18,6 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
  */
 
-/*
- * PEHeader.java
- *
- * Created on 28 juillet 2003, 21:38
- */
 package com.google.code.jpexe;
 
 import java.io.*;
