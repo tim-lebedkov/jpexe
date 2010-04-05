@@ -30,7 +30,6 @@ import java.util.*;
  * @author  Rodrigo Reyes
  */
 public class PEHeader implements Cloneable {
-
     public int Machine; //  4
     public int NumberOfSections;     //  6
     public long TimeDateStamp; //  8
@@ -102,7 +101,12 @@ public class PEHeader implements Cloneable {
     private long m_baseoffset;
     private PEFile m_pe;
 
-    /** Creates a new instance of PEHeader */
+    /**
+     * Creates a new instance of PEHeader
+     *
+     * @param pef PE file
+     * @param baseoffset offset in the file
+     */
     public PEHeader(PEFile pef, long baseoffset) {
         m_pe = pef;
         m_baseoffset = baseoffset;
@@ -391,7 +395,8 @@ public class PEHeader implements Cloneable {
         return head;
     }
 
-    public void updateVAAndSize(Vector oldsections, Vector newsections) {
+    public void updateVAAndSize(List<PESection> oldsections,
+            List<PESection> newsections) {
         long codebase = findNewVA(this.BaseOfCode, oldsections, newsections);
         long codesize = findNewSize(this.BaseOfCode, oldsections, newsections);
         //	System.out.println("New BaseOfCode=" + codebase + " (size=" + codesize + ")");
@@ -408,7 +413,7 @@ public class PEHeader implements Cloneable {
 
         long imagesize = 0;
         for (int i = 0; i < newsections.size(); i++) {
-            PESection sect = (PESection) newsections.get(i);
+            PESection sect = newsections.get(i);
             long curmax = sect.VirtualAddress + sect.VirtualSize;
             if (curmax > imagesize) {
                 imagesize = curmax;
@@ -477,34 +482,32 @@ public class PEHeader implements Cloneable {
                 newsections);
     }
 
-    private long findNewVA(long current, Vector oldsections, Vector newsections) {
+    private long findNewVA(long current, List<PESection> oldsections,
+            List<PESection> newsections) {
         for (int i = 0; i < oldsections.size(); i++) {
-            PESection sect = (PESection) oldsections.get(i);
+            PESection sect = oldsections.get(i);
             if (sect.VirtualAddress == current) {
-                PESection newsect = (PESection) newsections.get(i);
+                PESection newsect = newsections.get(i);
 
                 //			System.out.println("Translation VA found for " + current + " = " + i + " (" +newsect.VirtualAddress + ")=" + newsect.getName());
                 return newsect.VirtualAddress;
             } else if ((current > sect.VirtualAddress) && (current < (sect.VirtualAddress
                     + sect.VirtualSize))) {
                 long diff = current - sect.VirtualAddress;
-                PESection newsect = (PESection) newsections.get(i);
+                PESection newsect = newsections.get(i);
                 //			System.out.println("Translation VA found INSIDE " + current + " = " + i + " (" +newsect.VirtualAddress + ")=" + newsect.getName());
                 return newsect.VirtualAddress + diff;
             }
         }
-
-
-
         return 0;
     }
 
-    private long findNewSize(long current, Vector oldsections,
-            Vector newsections) {
+    private long findNewSize(long current, List<PESection> oldsections,
+            List<PESection> newsections) {
         for (int i = 0; i < oldsections.size(); i++) {
-            PESection sect = (PESection) oldsections.get(i);
+            PESection sect = oldsections.get(i);
             if (sect.VirtualAddress == current) {
-                PESection newsect = (PESection) newsections.get(i);
+                PESection newsect = newsections.get(i);
                 //			System.out.println("Translation Size found for " + current + " = " + i + " (" +newsect.VirtualAddress + ")=" + newsect.getName());
                 //			System.out.println("         Old size " + sect.VirtualSize + " vs new size " + newsect.VirtualSize);
                 return newsect.VirtualSize;

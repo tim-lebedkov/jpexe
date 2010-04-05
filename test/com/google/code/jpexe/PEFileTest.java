@@ -32,9 +32,11 @@ public class PEFileTest {
     //
     @Test
     public void addResString() throws IOException, CloneNotSupportedException {
-        PEFile pef = new PEFile(new File("C:\\Dokumente und Einstellungen\\tim.TIMPC\\Desktop\\ConsoleNB.exe"));
+        PEFile pef = new PEFile(new File("C:\\Dokumente und Einstellungen\\tim.TIMPC\\Eigene Dateien\\projects\\jliftoff\\demo\\SimpleApp\\SimpleApp.exe"));
+        //PEFile pef = new PEFile(new File("C:\\Dokumente und Einstellungen\\tim.TIMPC\\Desktop\\ConsoleNB.exe"));
         pef.open();
-        // pef.getResourceDirectory().getRoot().dump(System.out, 0);
+        pef.getResourceDirectory().getRoot().dump(System.out, 0);
+        /*
         ByteBuffer bb = ByteBuffer.allocate(5);
         bb.put((byte) '1');
         bb.put((byte) '.');
@@ -42,12 +44,16 @@ public class PEFileTest {
         bb.put((byte) '.');
         bb.put((byte) '8');
 
+        pef.getResourceDirectory().m_master.dump(System.out);
+        pef.getResourceDirectory().dump(System.out);
         final ImageResourceDirectory root = pef.getResourceDirectory().getRoot();
         ResourceEntry catEntry = root.getResourceEntry(10);
         ResourceEntry identEntry = catEntry.Directory.getResourceEntry(2);
         ResourceEntry langEntry = identEntry.Directory.getResourceEntry(1024);
         langEntry.Data.setData(bb);
         pef.dumpTo(new File("C:\\Dokumente und Einstellungen\\tim.TIMPC\\Desktop\\ConsoleNB2.exe"));
+         *
+         */
         pef.close();
     }
 }

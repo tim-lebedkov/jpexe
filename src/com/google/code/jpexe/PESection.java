@@ -28,8 +28,9 @@ import java.nio.channels.*;
  * @author  Rodrigo
  */
 public class PESection implements Cloneable {
-
+    /** this field is always 8 bytes long */
     public byte[] ANSI_Name; //  	Name of the Section. Can be anything (0)(8BYTES)
+
     public long VirtualSize; // 	The size of the section when it is mapped to memory. Must be a multiple of 4096. (8)(DWORD)
     public long VirtualAddress; // 	An rva to where it should be mapped in memory. (12)(DWORD)
     public long SizeOfRawData; // 	The size of the section in the PE file. Must be a multiple of 512 (16)(DWORD)
@@ -46,6 +47,20 @@ public class PESection implements Cloneable {
     public PESection(PEFile pef, long baseoffset) {
         m_pe = pef;
         m_baseoffset = baseoffset;
+    }
+
+    /**
+     * Creates a new instance of PESection.
+     * 
+     * @param pef PE file
+     * @param name name of the section (no more than 8 ANSI characters)
+     */
+    public PESection(PEFile pef, String name) {
+        m_pe = pef;
+        this.ANSI_Name = new byte[8];
+        byte[] bytes = name.getBytes();
+        System.arraycopy(bytes, 0, this.ANSI_Name, 0,
+                bytes.length);
     }
 
     public Object clone() throws CloneNotSupportedException {

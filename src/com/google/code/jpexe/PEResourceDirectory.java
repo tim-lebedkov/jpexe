@@ -30,7 +30,6 @@ import java.nio.channels.*;
  * @author  Rodrigo
  */
 public class PEResourceDirectory {
-
     /*
     typedef struct IMAGE_RESOURCE_DIRECTORY {
     uint32_t   Characteristics;
@@ -42,7 +41,6 @@ public class PEResourceDirectory {
     }
      */
     public class DataEntry {
-
         long OffsetToData;   // To update at each change
         long Size;
         long CodePage;   // never changed
@@ -71,6 +69,7 @@ public class PEResourceDirectory {
                     - PEResourceDirectory.this.m_master.VirtualAddress);
             Data = ByteBuffer.allocate((int) Size);
             Data.order(ByteOrder.LITTLE_ENDIAN);
+            System.out.println("datapos " + datapos);
             chan.position(datapos);
             chan.read(Data);
             Data.position(0);
@@ -98,10 +97,9 @@ public class PEResourceDirectory {
             indent(level, out);
             out.print("Data={ ");
             for (int i = 0; i < this.Data.capacity(); i++) {
-                out.print("" + Integer.toHexString((byte) Data.get()) + ",");
+                out.print("" + Integer.toHexString(Data.get(i)) + ",");
             }
             out.println(" }");
-
         }
 
         private void indent(int level, PrintStream out) {
@@ -139,7 +137,6 @@ public class PEResourceDirectory {
     }
 
     public class ResourceEntry {
-
         public int Id;
         public String Name;
         public ImageResourceDirectory Directory;
@@ -321,13 +318,13 @@ public class PEResourceDirectory {
     public class ImageResourceDirectory {
 
         long Characteristics; // uint32_t
-        long TimeDateStamp; // uint32_t
+        public long TimeDateStamp; // uint32_t
         int MajorVersion; // uint16_t
         int MinorVersion; // uint16_t
-        int NumberOfNamedEntries; // uint16_t
-        int NumberOfIdEntries; // uint16_t
-        Vector NamedEntries = new Vector();
-        Vector IdEntries = new Vector();
+        // int NumberOfNamedEntries; // uint16_t
+        // int NumberOfIdEntries; // uint16_t
+        List<ResourceEntry> NamedEntries = new ArrayList<ResourceEntry>();
+        List<ResourceEntry> IdEntries = new ArrayList<ResourceEntry>();
 
         public ImageResourceDirectory() {
         }
@@ -342,8 +339,8 @@ public class PEResourceDirectory {
             TimeDateStamp = header.getInt();
             MajorVersion = header.getShort();
             MinorVersion = header.getShort();
-            NumberOfNamedEntries = header.getShort();
-            NumberOfIdEntries = header.getShort();
+            short NumberOfNamedEntries = header.getShort();
+            short NumberOfIdEntries = header.getShort();
 
             for (int i = 0; i < NumberOfNamedEntries; i++) {
                 ResourceEntry re = new ResourceEntry(chan);
@@ -383,19 +380,21 @@ public class PEResourceDirectory {
             indent(level, out);
             out.println("MinorVersion=" + this.MinorVersion);
             indent(level, out);
-            out.println("NumberOfNamedEntries=" + this.NumberOfNamedEntries);
+            out.println("NumberOfNamedEntries=" + 
+                    this.NamedEntries.size());
             indent(level, out);
-            out.println("NumberOfIdEntries=" + this.NumberOfIdEntries);
+            out.println("NumberOfIdEntries=" +
+                    this.IdEntries.size());
             indent(level, out);
             out.println("Named Entries:");
-            for (int i = 0; i < NumberOfNamedEntries; i++) {
-                ResourceEntry re = (ResourceEntry) NamedEntries.get(i);
+            for (int i = 0; i < NamedEntries.size(); i++) {
+                ResourceEntry re = NamedEntries.get(i);
                 re.dump(out, level + 1);
             }
             indent(level, out);
             out.println("Id Entries:");
-            for (int i = 0; i < NumberOfIdEntries; i++) {
-                ResourceEntry re = (ResourceEntry) IdEntries.get(i);
+            for (int i = 0; i < IdEntries.size(); i++) {
+                ResourceEntry re = IdEntries.get(i);
                 re.dump(out, level + 1);
             }
         }
@@ -409,11 +408,11 @@ public class PEResourceDirectory {
         public int diskSize() {
             int size = 16;
             for (int i = 0; i < this.NamedEntries.size(); i++) {
-                ResourceEntry re = (ResourceEntry) NamedEntries.get(i);
+                ResourceEntry re = NamedEntries.get(i);
                 size += re.diskSize();
             }
             for (int i = 0; i < this.IdEntries.size(); i++) {
-                ResourceEntry re = (ResourceEntry) IdEntries.get(i);
+                ResourceEntry re = IdEntries.get(i);
                 size += re.diskSize();
             }
 
@@ -459,11 +458,10 @@ public class PEResourceDirectory {
             // lowest integer id entry.
             if (name == null) {
                 if (NamedEntries.size() > 0) {
-                    return (PEResourceDirectory.ResourceEntry) NamedEntries.get(
-                            0);
+                    return NamedEntries.get(0);
                 }
                 if (IdEntries.size() > 0) {
-                    return (PEResourceDirectory.ResourceEntry) IdEntries.get(0);
+                    return IdEntries.get(0);
                 }
                 return null;
             }
@@ -478,8 +476,9 @@ public class PEResourceDirectory {
                 }
             }
 
-            for (Iterator i = this.NamedEntries.iterator(); i.hasNext();) {
-                ResourceEntry re = (ResourceEntry) i.next();
+            for (Iterator<ResourceEntry> i = this.NamedEntries.iterator();
+                    i.hasNext();) {
+                ResourceEntry re = i.next();
                 if (name.equals(re.Name)) {
                     return re;
                 }
@@ -488,16 +487,35 @@ public class PEResourceDirectory {
         }
 
         public ResourceEntry getResourceEntry(int id) {
-            for (Iterator i = this.IdEntries.iterator(); i.hasNext();) {
-                ResourceEntry re = (ResourceEntry) i.next();
+            for (Iterator<ResourceEntry> i = this.IdEntries.iterator();
+                    i.hasNext();) {
+                ResourceEntry re = i.next();
                 if (id == re.Id) {
                     return re;
                 }
             }
             return null;
         }
+
+        /**
+         * Returns an entry with the specified ID. Creates a new entry if it
+         * does not exist
+         *
+         * @param id ID of the entry
+         * @return entry with the specified ID (without any data or
+         *     subdirectory)
+         */
+        public ResourceEntry getOrCreateResourceEntry(int id) {
+            ResourceEntry r = getResourceEntry(id);
+            if (r == null) {
+                r = buildResourceEntry(id, (DataEntry) null);
+                addEntry(r);
+            }
+            return r;
+        }
     }
-    PESection m_master;
+
+    public PESection m_master;
     PEFile m_file;
     long m_offsetBase;
     PEResourceDirectory.ImageResourceDirectory m_root;
@@ -536,7 +554,7 @@ public class PEResourceDirectory {
     }
 
     public ByteBuffer buildResource(long virtualBaseOffset) {
-        //		System.out.println("BUILDING RESOURCE / VIRTUAL: " + virtualBaseOffset);
+        // System.out.println("BUILDING RESOURCE / VIRTUAL: " + virtualBaseOffset);
         int resourceSize = m_root.diskSize();
         ByteBuffer resbuf = ByteBuffer.allocate(resourceSize);
         resbuf.order(ByteOrder.LITTLE_ENDIAN);
@@ -613,6 +631,10 @@ public class PEResourceDirectory {
         return new ResourceEntry(id, data);
     }
 
+    public ResourceEntry buildResourceEntry(int id, DataEntry data) {
+        return new ResourceEntry(id, data);
+    }
+
     public ResourceEntry buildResourceEntry(String id,
             ImageResourceDirectory dir) {
         if ((id.length() > 1) && (id.charAt(0) == '#')) {
@@ -620,6 +642,11 @@ public class PEResourceDirectory {
             return new ResourceEntry(intid, dir);
         }
 
+        return new ResourceEntry(id, dir);
+    }
+
+    public ResourceEntry buildResourceEntry(int id,
+            ImageResourceDirectory dir) {
         return new ResourceEntry(id, dir);
     }
 }
