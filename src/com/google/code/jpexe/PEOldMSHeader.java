@@ -1,76 +1,61 @@
 /*
-JSmooth: a VM wrapper toolkit for Windows
-Copyright (C) 2003 Rodrigo Reyes <reyes@charabia.net>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
+ * jpexe
+ * Copyright (C) 2003-2010 see http://code.google.com/p/jpexe/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 package com.google.code.jpexe;
 
 import java.io.*;
 import java.nio.*;
-import java.nio.channels.*;
 
 /**
- *
- * @author  Rodrigo
+ * Old MSDOS 2.0 .exe header
  */
-public class PEOldMSHeader implements Cloneable {
-
-    int e_cblp;          // Bytes on last page of file //  2
-    int e_cp;            // Pages in file //  4
-    int e_crlc;          // Relocations //  6
-    int e_cparhdr;       // Size of header in paragraphs //  8
-    int e_minalloc;      // Minimum extra paragraphs needed //  A
-    int e_maxalloc;      // Maximum extra paragraphs needed //  C
-    int e_ss;            // Initial (relative) SS value //  E
-    int e_sp;            // Initial SP value // 10
-    int e_csum;          // Checksum // 12
-    int e_ip;            // Initial IP value // 14
-    int e_cs;            // Initial (relative) CS value // 16
-    int e_lfarlc;        // File address of relocation table // 18
-    int e_ovno;          // Overlay number // 1A
-    int[] e_res = new int[4];        // Reserved words // 1C
-    int e_oemid;         // OEM identifier (for e_oeminfo) // 24
-    int e_oeminfo;       // OEM information; e_oemid specific // 26
-    int[] e_res2 = new int[10];      // Reserved words // 28
-    long e_lfanew;       // File address of new exe header // 3C
-    private PEFile m_pe;
-
-    /** Creates a new instance of PEOldMSHeader */
-    public PEOldMSHeader(PEFile pe) {
-        m_pe = pe;
-    }
+public class PEOldMSHeader implements Cloneable, BinaryRecord {
+    public int e_cblp;          // Bytes on last page of file //  2
+    public int e_cp;            // Pages in file //  4
+    public int e_crlc;          // Relocations //  6
+    public int e_cparhdr;       // Size of header in paragraphs //  8
+    public int e_minalloc;      // Minimum extra paragraphs needed //  A
+    public int e_maxalloc;      // Maximum extra paragraphs needed //  C
+    public int e_ss;            // Initial (relative) SS value //  E
+    public int e_sp;            // Initial SP value // 10
+    public int e_csum;          // Checksum // 12
+    public int e_ip;            // Initial IP value // 14
+    public int e_cs;            // Initial (relative) CS value // 16
+    public int e_lfarlc;        // File address of relocation table // 18
+    public int e_ovno;          // Overlay number // 1A
+    public int[] e_res = new int[4];        // Reserved words // 1C
+    public int e_oemid;         // OEM identifier (for e_oeminfo) // 24
+    public int e_oeminfo;       // OEM information; e_oemid specific // 26
+    public int[] e_res2 = new int[10];      // Reserved words // 28
+    public int e_lfanew;       // File address of new exe header // 3C
 
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 
-    public void read() throws IOException {
-        FileChannel ch = m_pe.getChannel();
-        ByteBuffer mz = ByteBuffer.allocate(64);
-        mz.order(ByteOrder.LITTLE_ENDIAN);
-
-        ch.read(mz, 0);
-        mz.position(0);
-
+    public void setData(ByteBuffer mz) {
         byte m = mz.get();
         byte z = mz.get();
-        if ((m == 77) && (z == 90)) {
-            //		System.out.println("MZ found !");
+
+        // MZ
+        if ((m != 77) || (z != 90)) {
+            throw new IllegalArgumentException("MZ magic number expected");
         }
 
         e_cblp = mz.getShort();          // Bytes on last page of file //  2
@@ -98,12 +83,15 @@ public class PEOldMSHeader implements Cloneable {
             e_res2[i] = mz.getShort();      // Reserved words // 28
         }
         e_lfanew = mz.getInt();       // File address of new exe header // 3C
-
-        //	System.out.println("exe header : " + e_lfanew);
     }
 
+    /**
+     * Prints the content of this object.
+     *
+     * @param out output
+     */
     public void dump(PrintStream out) {
-        out.println("MSHeader:");
+        out.println("PEOldMSHeader:");
 
         out.println("e_cblp: " + e_cblp + " // Bytes on last page of file //  2");
         out.println("e_cp: " + e_cp + " // Pages in file //  4");
@@ -132,10 +120,9 @@ public class PEOldMSHeader implements Cloneable {
                 + " // File address of new exe header // 3C");
     }
 
-    public ByteBuffer get() {
+    public ByteBuffer getData() {
         ByteBuffer mz = ByteBuffer.allocate(64);
         mz.order(ByteOrder.LITTLE_ENDIAN);
-        mz.position(0);
 
         mz.put((byte) 77);
         mz.put((byte) 90);
@@ -165,9 +152,17 @@ public class PEOldMSHeader implements Cloneable {
         for (int i = 0; i < 10; i++) {
             mz.putShort((short) e_res2[i]);      // Reserved words // 28
         }
-        mz.putInt((int) e_lfanew);       // File address of new exe header // 3C
+        mz.putInt(e_lfanew);       // File address of new exe header // 3C
 
-        mz.position(0);
         return mz;
+    }
+
+    public long getLocation() {
+        return 0;
+    }
+
+    public void setLocation(long location) {
+        throw new IllegalArgumentException(
+                "MSDOS 2.0 exe header is always at the offset 0");
     }
 }

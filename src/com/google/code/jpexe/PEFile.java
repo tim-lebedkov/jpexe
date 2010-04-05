@@ -1,40 +1,51 @@
 /*
-JSmooth: a VM wrapper toolkit for Windows
-Copyright (C) 2003 Rodrigo Reyes <reyes@charabia.net>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
+ * jpexe
+ * Copyright (C) 2003-2010 see http://code.google.com/p/jpexe/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+
 package com.google.code.jpexe;
 
 import java.util.*;
 import java.io.*;
 import java.nio.*;
 import java.nio.channels.*;
+import java.nio.channels.FileChannel.MapMode;
 
 /**
+ * Portable executable.
+ * 
  * http://de.wikipedia.org/wiki/Portable_Executable
- * @author  Rodrigo
- * @author see home page
  */
 public class PEFile {
     private File m_file;
     private FileInputStream m_in = null;
-    private FileChannel m_channel = null;
+    private FileChannel m_channel_ = null;
+
     private PEOldMSHeader m_oldmsheader;
+
+    /**
+     * Data between the old MS-DOS header (64 bytes long) and the new
+     * PE header (starting with 'PE'\0\0). Contains also the MS-DOS 2.0 stub
+     * program.
+     */
+    private SimpleBinaryRecord header2;
+
     public PEHeader m_header;
+
     private List<PESection> m_sections = new ArrayList<PESection>();
     private PEResourceDirectory m_resourceDir;
 
@@ -51,35 +62,36 @@ public class PEFile {
         m_in.close();
     }
 
-    public void open() throws FileNotFoundException, IOException {
+    public void open() throws IOException {
         m_in = new FileInputStream(m_file);
-        m_channel = m_in.getChannel();
+        m_channel_ = m_in.getChannel();
 
-        m_oldmsheader = new PEOldMSHeader(this);
+        MappedByteBuffer mbb =
+                m_channel_.map(MapMode.READ_ONLY, 0, m_channel_.size());
 
-        m_oldmsheader.read();
-        // m_oldmsheader.dump(System.out);
-        long headoffset = m_oldmsheader.e_lfanew;
+        // read the MS-DOS header (starts with 'MZ')
+        m_oldmsheader = new PEOldMSHeader();
+        m_oldmsheader.setData(mbb);
 
-        m_header = new PEHeader(this, headoffset);
-        m_header.read();
-        // m_header.dump(System.out);
+        // read everything between 2 headers (including the MS-DOS 2.0 stub)
+        this.header2 = new SimpleBinaryRecord(m_oldmsheader.e_lfanew - 64);
+        this.header2.setData(mbb);
+
+        // read PE header (starts with 'PE')
+        m_header = new PEHeader();
+        m_header.setData(mbb);
 
         int seccount = m_header.NumberOfSections;
-        //	System.out.println("LOADING " + seccount + " sections...");
-
+        int headoffset = m_oldmsheader.e_lfanew;
         long offset = headoffset + (m_header.NumberOfRvaAndSizes * 8) + 24 + 96;
 
         for (int i = 0; i < seccount; i++) {
-            //		System.out.println("Offset: " + offset + " (" + this.m_channel.position());
-
             PESection sect = new PESection(this, offset);
             sect.read();
             // sect.dump(System.out);
             m_sections.add(sect);
             offset += 40;
         }
-        //	System.out.println("After sections: " + this.m_channel.position() + " (" + offset + ")");
 
         ByteBuffer resbuf = null;
         long resourceoffset = m_header.ResourceDirectory_VA;
@@ -95,7 +107,7 @@ public class PEFile {
     }
 
     public FileChannel getChannel() {
-        return m_channel;
+        return m_channel_;
     }
 
     public static void main(String args[]) throws IOException,
@@ -259,11 +271,7 @@ public class PEFile {
         FileOutputStream fos = new FileOutputStream(destination);
         FileChannel out = fos.getChannel();
 
-        //
         // Make a copy of the Header, for safe modifications
-        //
-        PEOldMSHeader oldmsheader = (PEOldMSHeader) this.m_oldmsheader.clone();
-        PEHeader peheader = (PEHeader) m_header.clone();
         List<PESection> sections = new ArrayList<PESection>();
         for (int i = 0; i < m_sections.size(); i++) {
             PESection sect = m_sections.get(i);
@@ -271,29 +279,26 @@ public class PEFile {
             sections.add(cs);
         }
 
-        //
         // First, write the old MS Header, the one starting
         // with "MZ"...
-        //
-        long newexeoffset = oldmsheader.e_lfanew;
-        ByteBuffer msheadbuffer = oldmsheader.get();
-        outputcount = out.write(msheadbuffer);
-        this.m_channel.position(64);
-        out.transferFrom(this.m_channel, 64, newexeoffset - 64);
+        ByteBuffer bb = this.m_oldmsheader.getData();
+        bb.position(0);
+        outputcount = out.write(bb);
 
+        // write everything between 2 headers
+        bb = this.header2.getData();
+        bb.position(0);
+        out.write(bb);
 
-        //
         // Then Write the new Header...
-        //
-        ByteBuffer headbuffer = peheader.get();
-        out.position(newexeoffset);
-        outputcount = out.write(headbuffer);
+        bb = this.m_header.getData();
+        bb.position(0);
+        out.write(bb);
 
-        //
         // After the header, there are all the section
         // headers...
-        //
-        long offset = oldmsheader.e_lfanew + (m_header.NumberOfRvaAndSizes * 8)
+        long offset = this.m_oldmsheader.e_lfanew +
+                (m_header.NumberOfRvaAndSizes * 8)
                 + 24 + 96;
         out.position(offset);
         for (int i = 0; i < sections.size(); i++) {
@@ -304,24 +309,19 @@ public class PEFile {
             outputcount = out.write(buf);
         }
 
-        //
         // Now, we write the real data: each of the section
         // and their data...
-        //
 
         // Not sure why it's always at 1024... ?
         offset = 1024;
 
-        //
-        // Dump each section data
-        //
-
         long virtualAddress = offset;
-        if ((virtualAddress % peheader.SectionAlignment) > 0) {
-            virtualAddress += peheader.SectionAlignment - (virtualAddress
-                    % peheader.SectionAlignment);
+        if ((virtualAddress % this.m_header.SectionAlignment) > 0) {
+                virtualAddress += this.m_header.SectionAlignment -
+                (virtualAddress % this.m_header.SectionAlignment);
         }
 
+        // Dump each section data
         long resourceoffset = m_header.ResourceDirectory_VA;
         for (int i = 0; i < sections.size(); i++) {
             PESection sect = sections.get(i);
@@ -346,15 +346,16 @@ public class PEFile {
                 }
 
                 long virtualSize = resbuf.capacity();
-                if ((virtualSize % peheader.FileAlignment) > 0) {
-                    virtualSize += peheader.SectionAlignment - (virtualSize
-                            % peheader.SectionAlignment);
+                if ((virtualSize % this.m_header.FileAlignment) > 0) {
+                    virtualSize += this.m_header.SectionAlignment -
+                            (virtualSize % this.m_header.SectionAlignment);
                 }
 
                 sect.PointerToRawData = sectoffset;
                 sect.SizeOfRawData = resbuf.capacity();
                 if ((sect.SizeOfRawData % this.m_header.FileAlignment) > 0) {
-                    sect.SizeOfRawData += (this.m_header.FileAlignment - (sect.SizeOfRawData
+                    sect.SizeOfRawData += (this.m_header.FileAlignment -
+                            (sect.SizeOfRawData
                             % this.m_header.FileAlignment));
                 }
                 sect.VirtualAddress = virtualAddress;
@@ -364,14 +365,14 @@ public class PEFile {
             } else if (sect.PointerToRawData > 0) {
                 //			System.out.println("Dumping section " + i + "/" + sect.getName() + " at " + offset + " from " + sect.PointerToRawData + " (VA=" + virtualAddress + ")");
                 out.position(offset);
-                this.m_channel.position(sect.PointerToRawData);
+                this.m_channel_.position(sect.PointerToRawData);
                 long sectoffset = offset;
 
                 out.position(offset + sect.SizeOfRawData);
                 ByteBuffer padder = ByteBuffer.allocate(1);
                 out.write(padder, offset + sect.SizeOfRawData - 1);
 
-                long outted = out.transferFrom(this.m_channel, offset,
+                long outted = out.transferFrom(this.m_channel_, offset,
                         sect.SizeOfRawData);
                 offset += sect.SizeOfRawData;
                 //			System.out.println("offset before alignment, " + offset);
@@ -392,18 +393,18 @@ public class PEFile {
                 //			sect.VirtualSize = virtualSize;
 
                 virtualAddress += sect.VirtualSize;
-                if ((virtualAddress % peheader.SectionAlignment) > 0) {
-                    virtualAddress += peheader.SectionAlignment - (virtualAddress
-                            % peheader.SectionAlignment);
+                if ((virtualAddress % this.m_header.SectionAlignment) > 0) {
+                    virtualAddress += this.m_header.SectionAlignment -
+                            (virtualAddress % this.m_header.SectionAlignment);
                 }
             } else {
                 // generally a BSS, with a virtual size but no
                 // data in the file...
                 //			System.out.println("Dumping section " + i + " at " + offset + " from " + sect.PointerToRawData + " (VA=" + virtualAddress + ")");
                 long virtualSize = sect.VirtualSize;
-                if ((virtualSize % peheader.SectionAlignment) > 0) {
-                    virtualSize += peheader.SectionAlignment - (virtualSize
-                            % peheader.SectionAlignment);
+                if ((virtualSize % this.m_header.SectionAlignment) > 0) {
+                    virtualSize += this.m_header.SectionAlignment -
+                            (virtualSize % this.m_header.SectionAlignment);
                 }
 
                 sect.VirtualAddress = virtualAddress;
@@ -412,20 +413,21 @@ public class PEFile {
             }
         }
 
-        //
         // Now that all the sections have been written, we have the
         // correct VirtualAddress and Sizes, so we can update the new
         // header and all the section headers...
 
-        peheader.updateVAAndSize(m_sections, sections);
-        headbuffer = peheader.get();
-        out.position(newexeoffset);
-        outputcount = out.write(headbuffer);
+        this.m_header.updateVAAndSize(m_sections, sections);
+
+        bb = this.m_header.getData();
+        bb.position(0);
+        out.position(m_oldmsheader.e_lfanew);
+        outputcount = out.write(bb);
 
         // peheader.dump(System.out);
         ///	System.out.println("Dumping the section again...");
-        offset = oldmsheader.e_lfanew + (m_header.NumberOfRvaAndSizes * 8) + 24
-                + 96;
+        offset = this.m_oldmsheader.e_lfanew +
+                (m_header.NumberOfRvaAndSizes * 8) + 24 + 96;
         out.position(offset);
         for (int i = 0; i < sections.size(); i++) {
             //		System.out.println("  offset: " + out.position());

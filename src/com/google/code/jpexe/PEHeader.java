@@ -1,35 +1,34 @@
 /*
-JSmooth: a VM wrapper toolkit for Windows
-Copyright (C) 2003 Rodrigo Reyes <reyes@charabia.net>
-
-This program is free software; you can redistribute it and/or modify
-it under the terms of the GNU General Public License as published by
-the Free Software Foundation; either version 2 of the License, or
-(at your option) any later version.
-
-This program is distributed in the hope that it will be useful,
-but WITHOUT ANY WARRANTY; without even the implied warranty of
-MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-GNU General Public License for more details.
-
-You should have received a copy of the GNU General Public License
-along with this program; if not, write to the Free Software
-Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-
+ * jpexe
+ * Copyright (C) 2003-2010 see http://code.google.com/p/jpexe/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 
 package com.google.code.jpexe;
 
 import java.io.*;
 import java.nio.*;
-import java.nio.channels.*;
 import java.util.*;
 
 /**
- *
- * @author  Rodrigo Reyes
+ * PE header.
  */
-public class PEHeader implements Cloneable {
+public class PEHeader implements Cloneable, BinaryRecord {
+    private long location;
+
     public int Machine; //  4
     public int NumberOfSections;     //  6
     public long TimeDateStamp; //  8
@@ -37,6 +36,7 @@ public class PEHeader implements Cloneable {
     public long NumberOfSymbols; // 10
     public int SizeOfOptionalHeader;     // 14
     public int Characteristics; // 16
+
     // Optional Header 
     public int Magic;     // 18
     public short MajorLinkerVersion;     // 1a
@@ -98,34 +98,16 @@ public class PEHeader implements Cloneable {
     public long DelayLoadImportDescriptors_Size; // e4
     public long COMRuntimedescriptor_VA; // e8
     public long COMRuntimedescriptor_Size; // ec
-    private long m_baseoffset;
-    private PEFile m_pe;
-
-    /**
-     * Creates a new instance of PEHeader
-     *
-     * @param pef PE file
-     * @param baseoffset offset in the file
-     */
-    public PEHeader(PEFile pef, long baseoffset) {
-        m_pe = pef;
-        m_baseoffset = baseoffset;
-    }
 
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
     }
 
-    public void read() throws IOException {
-        FileChannel ch = m_pe.getChannel();
-        ByteBuffer head = ByteBuffer.allocate(255);
-        head.order(ByteOrder.LITTLE_ENDIAN);
-        ch.position(m_baseoffset);
-        ch.read(head);
-        head.position(0);
-
+    public void setData(ByteBuffer head) {
         int pemagic = head.getInt();
-        //	System.out.println("MAGIC::: " + pemagic);
+        if (pemagic != 17744)
+            throw new IllegalArgumentException("Expected 4 byte magic number 17444");
+
         Machine = head.getShort(); //  4
         NumberOfSections = head.getShort();     //  6
         TimeDateStamp = head.getInt(); //  8
@@ -133,8 +115,8 @@ public class PEHeader implements Cloneable {
         NumberOfSymbols = head.getInt(); // 10
         SizeOfOptionalHeader = head.getShort();     // 14
         Characteristics = head.getShort(); // 16
-        // Optional Header
 
+        // Optional Header
         Magic = head.getShort();     // 18
         MajorLinkerVersion = head.get();     // 1a
         MinorLinkerVersion = head.get(); // 1b
@@ -144,6 +126,7 @@ public class PEHeader implements Cloneable {
         AddressOfEntryPoint = head.getInt(); // 28
         BaseOfCode = head.getInt();     // 2c
         BaseOfData = head.getInt();    //    // NT additional fields. // 30
+
         //
         ImageBase = head.getInt();     // 34
         SectionAlignment = head.getInt(); // 38
@@ -199,8 +182,13 @@ public class PEHeader implements Cloneable {
         COMRuntimedescriptor_Size = head.getInt(); // ec
     }
 
+    /**
+     * Outputs debug information
+     *
+     * @param out output
+     */
     public void dump(PrintStream out) {
-        out.println("HEADER:");
+        out.println("PEHeader:");
         out.println("int  Machine=" + Machine + " //  4");
         out.println("int  NumberOfSections=" + NumberOfSections + "     //  6");
         out.println("long   TimeDateStamp=" + TimeDateStamp + " //  8");
@@ -312,7 +300,7 @@ public class PEHeader implements Cloneable {
                 + COMRuntimedescriptor_Size + " // ec");
     }
 
-    public ByteBuffer get() {
+    public ByteBuffer getData() {
         ByteBuffer head = ByteBuffer.allocate(16 + this.SizeOfOptionalHeader);
         head.order(ByteOrder.LITTLE_ENDIAN);
         head.position(0);
@@ -514,5 +502,16 @@ public class PEHeader implements Cloneable {
             }
         }
         return 0;
+    }
+
+    public long getLocation() {
+        return location;
+    }
+
+    public void setLocation(long location) {
+        if (location % 8 != 0)
+            throw new IllegalArgumentException(
+                    "PE header location must be aligned on 8 byte boundary");
+        this.location = location;
     }
 }
