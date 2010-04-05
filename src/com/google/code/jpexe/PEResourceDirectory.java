@@ -25,7 +25,6 @@ import java.nio.channels.*;
 
 /**
  *
- * @author  Rodrigo
  */
 public class PEResourceDirectory {
     /*

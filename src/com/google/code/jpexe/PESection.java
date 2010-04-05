@@ -23,8 +23,7 @@ import java.nio.*;
 import java.nio.channels.*;
 
 /**
- *
- * @author  Rodrigo
+ * A section in a PE file.
  */
 public class PESection implements Cloneable {
     /** this field is always 8 bytes long */

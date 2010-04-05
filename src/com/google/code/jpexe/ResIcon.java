@@ -24,7 +24,7 @@ import java.awt.*;
 import java.awt.image.*;
 
 /**
- * @see
+ * 
  */
 public class ResIcon {
 

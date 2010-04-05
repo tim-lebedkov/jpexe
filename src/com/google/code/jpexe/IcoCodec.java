@@ -26,7 +26,6 @@ import java.awt.*;
 
 /**
  *
- * @author  Rodrigo Reyes
  */
 public class IcoCodec {
     static public class IconDir {
