@@ -68,13 +68,15 @@ public class PEFile {
 
         MappedByteBuffer mbb =
                 m_channel_.map(MapMode.READ_ONLY, 0, m_channel_.size());
+        mbb.order(ByteOrder.LITTLE_ENDIAN);
 
         // read the MS-DOS header (starts with 'MZ')
         m_oldmsheader = new PEOldMSHeader();
         m_oldmsheader.setData(mbb);
 
         // read everything between 2 headers (including the MS-DOS 2.0 stub)
-        this.header2 = new SimpleBinaryRecord(m_oldmsheader.e_lfanew - 64);
+        this.header2 = new SimpleBinaryRecord(m_oldmsheader.e_lfanew -
+                mbb.position());
         this.header2.setData(mbb);
 
         // read PE header (starts with 'PE')

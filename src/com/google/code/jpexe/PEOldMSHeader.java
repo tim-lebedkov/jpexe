@@ -23,7 +23,8 @@ import java.io.*;
 import java.nio.*;
 
 /**
- * Old MSDOS 2.0 .exe header
+ * Old MSDOS 2.0 .exe header.
+ * http://www.skynet.ie/~caolan/publink/winresdump/winresdump/doc/pefile.html
  */
 public class PEOldMSHeader implements Cloneable, BinaryRecord {
     public int e_cblp;          // Bytes on last page of file //  2
@@ -43,7 +44,7 @@ public class PEOldMSHeader implements Cloneable, BinaryRecord {
     public int e_oemid;         // OEM identifier (for e_oeminfo) // 24
     public int e_oeminfo;       // OEM information; e_oemid specific // 26
     public int[] e_res2 = new int[10];      // Reserved words // 28
-    public int e_lfanew;       // File address of new exe header // 3C
+    public short e_lfanew;       // File address of new exe header // 3C
 
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
@@ -82,7 +83,7 @@ public class PEOldMSHeader implements Cloneable, BinaryRecord {
         for (int i = 0; i < 10; i++) {
             e_res2[i] = mz.getShort();      // Reserved words // 28
         }
-        e_lfanew = mz.getInt();       // File address of new exe header // 3C
+        e_lfanew = mz.getShort();       // File address of new exe header // 3C
     }
 
     /**
@@ -152,7 +153,7 @@ public class PEOldMSHeader implements Cloneable, BinaryRecord {
         for (int i = 0; i < 10; i++) {
             mz.putShort((short) e_res2[i]);      // Reserved words // 28
         }
-        mz.putInt(e_lfanew);       // File address of new exe header // 3C
+        mz.putLong(e_lfanew);       // File address of new exe header // 3C
 
         return mz;
     }
