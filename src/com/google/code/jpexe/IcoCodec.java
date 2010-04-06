@@ -323,17 +323,4 @@ public class IcoCodec {
 
         //	System.out.println("AND data read (" + readbytes + " bytes total)");
     }
-
-    static public void main(String[] args) throws Exception {
-        File f = new File(args[0]);
-        Image img = IcoCodec.loadImages(f)[0];
-        //	System.out.println("img = " + img);
-
-        javax.swing.JFrame jf = new javax.swing.JFrame("Test");
-        javax.swing.JButton button = new javax.swing.JButton(new javax.swing.ImageIcon(
-                img));
-        jf.getContentPane().add(button);
-        jf.pack();
-        jf.setVisible(true);
-    }
 }

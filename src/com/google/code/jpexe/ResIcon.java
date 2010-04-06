@@ -421,8 +421,4 @@ public class ResIcon {
 
         return out.toString();
     }
-
-    public static void main(String[] args) throws Exception {
-        com.google.code.jpexe.PEFile.main(args);
-    }
 }
