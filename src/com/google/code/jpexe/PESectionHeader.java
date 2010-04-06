@@ -20,12 +20,11 @@ package com.google.code.jpexe;
 
 import java.io.*;
 import java.nio.*;
-import java.nio.channels.*;
 
 /**
  * A section header in a PE file.
  */
-public class PESectionHeader implements Cloneable {
+public class PESectionHeader implements Cloneable, BinaryRecord {
     /** this field is always 8 bytes long */
     public byte[] ANSI_Name; // Name of the Section. Can be anything (0)(8BYTES)
 
@@ -57,27 +56,22 @@ public class PESectionHeader implements Cloneable {
     public long Characteristics;
     
     private long m_baseoffset;
-    private PEFile m_pe;
 
     /**
      * Creates a new instance of PESectionHeader
      *
-     * @param pef PE
-     * @param baseoffset offset of this section?
+     * @param baseoffset offset of this section header
      */
-    public PESectionHeader(PEFile pef, long baseoffset) {
-        m_pe = pef;
+    public PESectionHeader(long baseoffset) {
         m_baseoffset = baseoffset;
     }
 
     /**
      * Creates a new instance of PESectionHeader.
      * 
-     * @param pef PE file
      * @param name name of the section (no more than 8 ANSI characters)
      */
-    public PESectionHeader(PEFile pef, String name) {
-        m_pe = pef;
+    public PESectionHeader(String name) {
         this.ANSI_Name = new byte[8];
         byte[] bytes = name.getBytes();
         System.arraycopy(bytes, 0, this.ANSI_Name, 0,
@@ -96,14 +90,7 @@ public class PESectionHeader implements Cloneable {
         return buffer.toString();
     }
 
-    public void read() throws IOException {
-        FileChannel ch = m_pe.getChannel();
-        ByteBuffer head = ByteBuffer.allocate(40);
-        head.order(ByteOrder.LITTLE_ENDIAN);
-        ch.position(m_baseoffset);
-        ch.read(head);
-        head.position(0);
-
+    public void setData(ByteBuffer head) {
         ANSI_Name = new byte[8];
         for (int i = 0; i < 8; i++) {
             ANSI_Name[i] = head.get();
@@ -157,10 +144,9 @@ public class PESectionHeader implements Cloneable {
 
     }
 
-    public ByteBuffer get() {
+    public ByteBuffer getData() {
         ByteBuffer head = ByteBuffer.allocate(40);
         head.order(ByteOrder.LITTLE_ENDIAN);
-        head.position(0);
 
         for (int i = 0; i < 8; i++) {
             head.put(ANSI_Name[i]);
@@ -178,5 +164,13 @@ public class PESectionHeader implements Cloneable {
 
         head.position(0);
         return head;
+    }
+
+    public long getLocation() {
+        return m_baseoffset;
+    }
+
+    public void setLocation(long location) {
+        this.m_baseoffset = location;
     }
 }

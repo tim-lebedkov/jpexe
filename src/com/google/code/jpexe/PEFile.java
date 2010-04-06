@@ -97,8 +97,9 @@ public class PEFile {
         long offset = headoffset + (header.NumberOfRvaAndSizes * 8) + 24 + 96;
 
         for (int i = 0; i < seccount; i++) {
-            PESectionHeader sect = new PESectionHeader(this, offset);
-            sect.read();
+            PESectionHeader sect = new PESectionHeader(offset);
+            mbb.position((int) offset);
+            sect.setData(mbb);
             sections.add(sect);
             offset += 40;
         }
@@ -162,11 +163,11 @@ public class PEFile {
         FileChannel out = fos.getChannel();
 
         // Make a copy of the Header, for safe modifications
-        List<PESectionHeader> sections = new ArrayList<PESectionHeader>();
-        for (int i = 0; i < sections.size(); i++) {
-            PESectionHeader sect = sections.get(i);
+        List<PESectionHeader> shs = new ArrayList<PESectionHeader>();
+        for (int i = 0; i < shs.size(); i++) {
+            PESectionHeader sect = shs.get(i);
             PESectionHeader cs = (PESectionHeader) sect.clone();
-            sections.add(cs);
+            shs.add(cs);
         }
 
         // First, write the old MS Header, the one starting
@@ -191,11 +192,9 @@ public class PEFile {
                 (header.NumberOfRvaAndSizes * 8)
                 + 24 + 96;
         out.position(offset);
-        for (int i = 0; i < sections.size(); i++) {
-            // System.out.println("  offset: " + out.position());
-            PESectionHeader sect = sections.get(i);
-
-            ByteBuffer buf = sect.get();
+        for (int i = 0; i < shs.size(); i++) {
+            PESectionHeader sh = shs.get(i);
+            ByteBuffer buf = sh.getData();
             outputcount = out.write(buf);
         }
 
@@ -213,8 +212,8 @@ public class PEFile {
 
         // Dump each section data
         long resourceoffset = header.ResourceDirectory_VA;
-        for (int i = 0; i < sections.size(); i++) {
-            PESectionHeader sect = sections.get(i);
+        for (int i = 0; i < shs.size(); i++) {
+            PESectionHeader sect = shs.get(i);
             if (resourceoffset == sect.VirtualAddress) {
                 // System.out.println("Dumping RES section " + i + " at " + offset + " from " + sect.PointerToRawData + " (VA=" + virtualAddress + ")");
                 out.position(offset);
@@ -303,7 +302,7 @@ public class PEFile {
         // Now that all the sections have been written, we have the
         // correct VirtualAddress and Sizes, so we can update the new
         // header and all the section headers...
-        this.header.updateVAAndSize(sections, sections);
+        this.header.updateVAAndSize(shs, shs);
 
         bb = this.header.getData();
         bb.position(0);
@@ -313,9 +312,9 @@ public class PEFile {
         offset = this.oldMSDOSHeader.e_lfanew +
                 (header.NumberOfRvaAndSizes * 8) + 24 + 96;
         out.position(offset);
-        for (int i = 0; i < sections.size(); i++) {
-            PESectionHeader sect = sections.get(i);
-            ByteBuffer buf = sect.get();
+        for (int i = 0; i < shs.size(); i++) {
+            PESectionHeader h = shs.get(i);
+            ByteBuffer buf = h.getData();
             outputcount = out.write(buf);
         }
 
