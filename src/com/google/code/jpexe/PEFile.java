@@ -31,11 +31,11 @@ import java.nio.channels.FileChannel.MapMode;
  * http://de.wikipedia.org/wiki/Portable_Executable
  */
 public class PEFile {
-    private File m_file;
-    private FileInputStream m_in = null;
-    private FileChannel m_channel_ = null;
+    private File file;
+    private FileInputStream in = null;
+    private FileChannel channel = null;
 
-    private PEOldMSHeader m_oldmsheader;
+    private PEOldMSHeader oldMSDOSHeader;
 
     /**
      * Data between the old MS-DOS header (64 bytes long) and the new
@@ -44,9 +44,10 @@ public class PEFile {
      */
     private SimpleBinaryRecord header2;
 
-    public PEHeader m_header;
+    public PEHeader header;
 
-    private List<PESection> m_sections = new ArrayList<PESection>();
+    private List<PESection> sections = new ArrayList<PESection>();
+
     private PEResourceDirectory m_resourceDir;
 
     /**
@@ -55,50 +56,58 @@ public class PEFile {
      * @param f an .exe
      */
     public PEFile(File f) {
-        m_file = f;
+        file = f;
+    }
+
+    /**
+     * @return sections of the file. The returned list should not be modified
+     *     directly.
+     */
+    public List<PESection> getSections() {
+        return Collections.unmodifiableList(sections);
     }
 
     public void close() throws IOException {
-        m_in.close();
+        in.close();
     }
 
     public void open() throws IOException {
-        m_in = new FileInputStream(m_file);
-        m_channel_ = m_in.getChannel();
+        in = new FileInputStream(file);
+        channel = in.getChannel();
 
         MappedByteBuffer mbb =
-                m_channel_.map(MapMode.READ_ONLY, 0, m_channel_.size());
+                channel.map(MapMode.READ_ONLY, 0, channel.size());
         mbb.order(ByteOrder.LITTLE_ENDIAN);
 
         // read the MS-DOS header (starts with 'MZ')
-        m_oldmsheader = new PEOldMSHeader();
-        m_oldmsheader.setData(mbb);
+        oldMSDOSHeader = new PEOldMSHeader();
+        oldMSDOSHeader.setData(mbb);
 
         // read everything between 2 headers (including the MS-DOS 2.0 stub)
-        this.header2 = new SimpleBinaryRecord(m_oldmsheader.e_lfanew -
+        this.header2 = new SimpleBinaryRecord(oldMSDOSHeader.e_lfanew -
                 mbb.position());
         this.header2.setData(mbb);
 
         // read PE header (starts with 'PE')
-        m_header = new PEHeader();
-        m_header.setData(mbb);
+        header = new PEHeader();
+        header.setData(mbb);
 
-        int seccount = m_header.NumberOfSections;
-        int headoffset = m_oldmsheader.e_lfanew;
-        long offset = headoffset + (m_header.NumberOfRvaAndSizes * 8) + 24 + 96;
+        int seccount = header.NumberOfSections;
+        int headoffset = oldMSDOSHeader.e_lfanew;
+        long offset = headoffset + (header.NumberOfRvaAndSizes * 8) + 24 + 96;
 
         for (int i = 0; i < seccount; i++) {
             PESection sect = new PESection(this, offset);
             sect.read();
             // sect.dump(System.out);
-            m_sections.add(sect);
+            sections.add(sect);
             offset += 40;
         }
 
         ByteBuffer resbuf = null;
-        long resourceoffset = m_header.ResourceDirectory_VA;
+        long resourceoffset = header.ResourceDirectory_VA;
         for (int i = 0; i < seccount; i++) {
-            PESection sect = m_sections.get(i);
+            PESection sect = sections.get(i);
             if (sect.VirtualAddress == resourceoffset) {
                 //			System.out.println("  Resource section found: " + resourceoffset);
                 PEResourceDirectory prd = new PEResourceDirectory(this, sect);
@@ -109,7 +118,7 @@ public class PEFile {
     }
 
     public FileChannel getChannel() {
-        return m_channel_;
+        return channel;
     }
 
     public static void main(String args[]) throws IOException,
@@ -237,9 +246,9 @@ public class PEFile {
             return m_resourceDir;
         }
 
-        long resourceoffset = m_header.ResourceDirectory_VA;
-        for (int i = 0; i < m_sections.size(); i++) {
-            PESection sect = m_sections.get(i);
+        long resourceoffset = header.ResourceDirectory_VA;
+        for (int i = 0; i < sections.size(); i++) {
+            PESection sect = sections.get(i);
             if (sect.VirtualAddress == resourceoffset) {
                 m_resourceDir = new PEResourceDirectory(this, sect);
                 return m_resourceDir;
@@ -256,15 +265,15 @@ public class PEFile {
      */
     public void addSection(PESection s) {
         long va = -1;
-        for (PESection s2: this.m_sections) {
+        for (PESection s2: this.sections) {
             if (s2.VirtualAddress > va) {
                 va = s2.VirtualAddress;
                 s.VirtualAddress = s2.VirtualAddress + s2.VirtualSize;
             }
         }
 
-        this.m_sections.add(s);
-        this.m_header.NumberOfSections = this.m_sections.size();
+        this.sections.add(s);
+        this.header.NumberOfSections = this.sections.size();
     }
 
     public void dumpTo(File destination) throws IOException,
@@ -275,15 +284,15 @@ public class PEFile {
 
         // Make a copy of the Header, for safe modifications
         List<PESection> sections = new ArrayList<PESection>();
-        for (int i = 0; i < m_sections.size(); i++) {
-            PESection sect = m_sections.get(i);
+        for (int i = 0; i < sections.size(); i++) {
+            PESection sect = sections.get(i);
             PESection cs = (PESection) sect.clone();
             sections.add(cs);
         }
 
         // First, write the old MS Header, the one starting
         // with "MZ"...
-        ByteBuffer bb = this.m_oldmsheader.getData();
+        ByteBuffer bb = this.oldMSDOSHeader.getData();
         bb.position(0);
         outputcount = out.write(bb);
 
@@ -293,14 +302,14 @@ public class PEFile {
         out.write(bb);
 
         // Then Write the new Header...
-        bb = this.m_header.getData();
+        bb = this.header.getData();
         bb.position(0);
         out.write(bb);
 
         // After the header, there are all the section
         // headers...
-        long offset = this.m_oldmsheader.e_lfanew +
-                (m_header.NumberOfRvaAndSizes * 8)
+        long offset = this.oldMSDOSHeader.e_lfanew +
+                (header.NumberOfRvaAndSizes * 8)
                 + 24 + 96;
         out.position(offset);
         for (int i = 0; i < sections.size(); i++) {
@@ -318,13 +327,13 @@ public class PEFile {
         offset = 1024;
 
         long virtualAddress = offset;
-        if ((virtualAddress % this.m_header.SectionAlignment) > 0) {
-                virtualAddress += this.m_header.SectionAlignment -
-                (virtualAddress % this.m_header.SectionAlignment);
+        if ((virtualAddress % this.header.SectionAlignment) > 0) {
+                virtualAddress += this.header.SectionAlignment -
+                (virtualAddress % this.header.SectionAlignment);
         }
 
         // Dump each section data
-        long resourceoffset = m_header.ResourceDirectory_VA;
+        long resourceoffset = header.ResourceDirectory_VA;
         for (int i = 0; i < sections.size(); i++) {
             PESection sect = sections.get(i);
             if (resourceoffset == sect.VirtualAddress) {
@@ -337,9 +346,9 @@ public class PEFile {
 
                 out.write(resbuf);
                 offset += resbuf.capacity();
-                long rem = offset % this.m_header.FileAlignment;
+                long rem = offset % this.header.FileAlignment;
                 if (rem != 0) {
-                    offset += this.m_header.FileAlignment - rem;
+                    offset += this.header.FileAlignment - rem;
                 }
 
                 if (out.size() + 1 < offset) {
@@ -348,17 +357,17 @@ public class PEFile {
                 }
 
                 long virtualSize = resbuf.capacity();
-                if ((virtualSize % this.m_header.FileAlignment) > 0) {
-                    virtualSize += this.m_header.SectionAlignment -
-                            (virtualSize % this.m_header.SectionAlignment);
+                if ((virtualSize % this.header.FileAlignment) > 0) {
+                    virtualSize += this.header.SectionAlignment -
+                            (virtualSize % this.header.SectionAlignment);
                 }
 
                 sect.PointerToRawData = sectoffset;
                 sect.SizeOfRawData = resbuf.capacity();
-                if ((sect.SizeOfRawData % this.m_header.FileAlignment) > 0) {
-                    sect.SizeOfRawData += (this.m_header.FileAlignment -
+                if ((sect.SizeOfRawData % this.header.FileAlignment) > 0) {
+                    sect.SizeOfRawData += (this.header.FileAlignment -
                             (sect.SizeOfRawData
-                            % this.m_header.FileAlignment));
+                            % this.header.FileAlignment));
                 }
                 sect.VirtualAddress = virtualAddress;
                 sect.VirtualSize = virtualSize;
@@ -367,21 +376,21 @@ public class PEFile {
             } else if (sect.PointerToRawData > 0) {
                 //			System.out.println("Dumping section " + i + "/" + sect.getName() + " at " + offset + " from " + sect.PointerToRawData + " (VA=" + virtualAddress + ")");
                 out.position(offset);
-                this.m_channel_.position(sect.PointerToRawData);
+                this.channel.position(sect.PointerToRawData);
                 long sectoffset = offset;
 
                 out.position(offset + sect.SizeOfRawData);
                 ByteBuffer padder = ByteBuffer.allocate(1);
                 out.write(padder, offset + sect.SizeOfRawData - 1);
 
-                long outted = out.transferFrom(this.m_channel_, offset,
+                long outted = out.transferFrom(this.channel, offset,
                         sect.SizeOfRawData);
                 offset += sect.SizeOfRawData;
                 //			System.out.println("offset before alignment, " + offset);
 
-                long rem = offset % this.m_header.FileAlignment;
+                long rem = offset % this.header.FileAlignment;
                 if (rem != 0) {
-                    offset += this.m_header.FileAlignment - rem;
+                    offset += this.header.FileAlignment - rem;
                 }
                 //			System.out.println("offset after alignment, " + offset);
 
@@ -395,18 +404,18 @@ public class PEFile {
                 //			sect.VirtualSize = virtualSize;
 
                 virtualAddress += sect.VirtualSize;
-                if ((virtualAddress % this.m_header.SectionAlignment) > 0) {
-                    virtualAddress += this.m_header.SectionAlignment -
-                            (virtualAddress % this.m_header.SectionAlignment);
+                if ((virtualAddress % this.header.SectionAlignment) > 0) {
+                    virtualAddress += this.header.SectionAlignment -
+                            (virtualAddress % this.header.SectionAlignment);
                 }
             } else {
                 // generally a BSS, with a virtual size but no
                 // data in the file...
                 //			System.out.println("Dumping section " + i + " at " + offset + " from " + sect.PointerToRawData + " (VA=" + virtualAddress + ")");
                 long virtualSize = sect.VirtualSize;
-                if ((virtualSize % this.m_header.SectionAlignment) > 0) {
-                    virtualSize += this.m_header.SectionAlignment -
-                            (virtualSize % this.m_header.SectionAlignment);
+                if ((virtualSize % this.header.SectionAlignment) > 0) {
+                    virtualSize += this.header.SectionAlignment -
+                            (virtualSize % this.header.SectionAlignment);
                 }
 
                 sect.VirtualAddress = virtualAddress;
@@ -419,17 +428,17 @@ public class PEFile {
         // correct VirtualAddress and Sizes, so we can update the new
         // header and all the section headers...
 
-        this.m_header.updateVAAndSize(m_sections, sections);
+        this.header.updateVAAndSize(sections, sections);
 
-        bb = this.m_header.getData();
+        bb = this.header.getData();
         bb.position(0);
-        out.position(m_oldmsheader.e_lfanew);
+        out.position(oldMSDOSHeader.e_lfanew);
         outputcount = out.write(bb);
 
         // peheader.dump(System.out);
         ///	System.out.println("Dumping the section again...");
-        offset = this.m_oldmsheader.e_lfanew +
-                (m_header.NumberOfRvaAndSizes * 8) + 24 + 96;
+        offset = this.oldMSDOSHeader.e_lfanew +
+                (header.NumberOfRvaAndSizes * 8) + 24 + 96;
         out.position(offset);
         for (int i = 0; i < sections.size(); i++) {
             //		System.out.println("  offset: " + out.position());

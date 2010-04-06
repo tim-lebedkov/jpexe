@@ -44,4 +44,12 @@ public class PEFileTest {
         pef.open();
         pef.close();
     }
+
+    @Test
+    public void countSections() throws IOException {
+        PEFile pef = new PEFile(new File("test/7z.exe"));
+        pef.open();
+        assertEquals(4, pef.getSections().size());
+        pef.close();
+    }
 }
