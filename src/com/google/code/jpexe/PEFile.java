@@ -109,9 +109,11 @@ public class PEFile {
         for (int i = 0; i < seccount; i++) {
             PESectionHeader sect = sections.get(i);
             if (sect.VirtualAddress == resourceoffset) {
-                //			System.out.println("  Resource section found: " + resourceoffset);
-                PEResourceDirectory prd = new PEResourceDirectory(this, sect);
-                resbuf = prd.buildResource(sect.VirtualAddress);
+                // TODO
+                PEResourceDirectory prd = new PEResourceDirectory(
+                        sect.PointerToRawData, sect.VirtualAddress,
+                        sect.PointerToRawData, sect.VirtualAddress);
+                // TODO resbuf = prd.buildResource(sect.VirtualAddress);
                 break;
             }
         }
@@ -130,7 +132,7 @@ public class PEFile {
         for (int i = 0; i < sections.size(); i++) {
             PESectionHeader sect = sections.get(i);
             if (sect.VirtualAddress == resourceoffset) {
-                m_resourceDir = new PEResourceDirectory(this, sect);
+                // TODO m_resourceDir = new PEResourceDirectory(this, sect);
                 return m_resourceDir;
             }
         }
@@ -219,7 +221,8 @@ public class PEFile {
                 out.position(offset);
                 long sectoffset = offset;
                 PEResourceDirectory prd = this.getResourceDirectory();
-                ByteBuffer resbuf = prd.buildResource(sect.VirtualAddress);
+                ByteBuffer resbuf = null; // TODO prd.buildResource(
+                        // TODO sect.VirtualAddress);
                 resbuf.position(0);
 
                 out.write(resbuf);

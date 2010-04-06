@@ -26,7 +26,7 @@ import java.nio.channels.*;
 /**
  * Navigable directory in the resource section in a PE.
  */
-public class PEResourceDirectory {
+public class PEResourceDirectory implements BinaryRecord {
     /*
     typedef struct IMAGE_RESOURCE_DIRECTORY {
     uint32_t   Characteristics;
@@ -44,26 +44,28 @@ public class PEResourceDirectory {
         long Reserved;   // never changed
         ByteBuffer Data;
 
-        public DataEntry(ByteBuffer data) {
+        /**
+         *
+         * @param data
+         */
+        /**
+         *
+         * @param data
+         */
+        /*public DataEntry(ByteBuffer data) {
             this.Data = data;
             this.Size = data.capacity();
-        }
+        }*/
 
-        public DataEntry(FileChannel chan, long offset) throws IOException {
-            long orgpos = chan.position();
-            chan.position(PEResourceDirectory.this.m_offsetBase + offset);
-            ByteBuffer buf = ByteBuffer.allocate(16);
-            buf.order(ByteOrder.LITTLE_ENDIAN);
-            chan.read(buf);
-            buf.position(0);
-
+        public DataEntry(ByteBuffer buf) {
             OffsetToData = buf.getInt();
             Size = buf.getInt();
             CodePage = buf.getInt();
             Reserved = buf.getInt();
 
-            long datapos = PEResourceDirectory.this.m_master.PointerToRawData + (OffsetToData
-                    - PEResourceDirectory.this.m_master.VirtualAddress);
+            /* todo
+            long datapos = PEResourceDirectory.this.pointerToRawData + (OffsetToData
+                    - PEResourceDirectory.this.virtualAddress);
             Data = ByteBuffer.allocate((int) Size);
             Data.order(ByteOrder.LITTLE_ENDIAN);
             chan.position(datapos);
@@ -71,6 +73,8 @@ public class PEResourceDirectory {
             Data.position(0);
 
             chan.position(orgpos);
+             *
+             */
         }
 
         public int diskSize() {
@@ -158,13 +162,8 @@ public class PEResourceDirectory {
             this.Directory = dir;
         }
 
-        public ResourceEntry(FileChannel chan) throws IOException {
-            //			System.out.println("Resource Entry Offset: " + chan.position());
-            ByteBuffer buf = ByteBuffer.allocate(8);
-            buf.order(ByteOrder.LITTLE_ENDIAN);
-            chan.read(buf);
-            buf.position(0);
-            long orgchanpos = chan.position();
+        public ResourceEntry(ByteBuffer buf) {
+            long orgchanpos = buf.position();
             int val = buf.getInt();
             long offsetToData = buf.getInt();
             // 			System.out.println("Entry: Val=" + val);
@@ -172,7 +171,7 @@ public class PEResourceDirectory {
 
             if (val < 0) {
                 val &= 0x7FFFFFFF;
-                Name = extractStringAt(chan, val);
+                Name = extractStringAt(buf, val);
                 Id = -1;
                 //				System.out.println("    String at " + val + " = " + Name);
             } else {
@@ -181,21 +180,21 @@ public class PEResourceDirectory {
 
             if (offsetToData < 0) {
                 offsetToData &= 0x7FFFFFFF;
-                long orgpos = chan.position();
-                chan.position(PEResourceDirectory.this.m_offsetBase
-                        + offsetToData);
-                Directory = new PEResourceDirectory.ImageResourceDirectory(chan);
-                chan.position(orgpos);
+                long orgpos = buf.position();
+                buf.position((int) (PEResourceDirectory.this.offset +
+                        offsetToData));
+                Directory = new PEResourceDirectory.ImageResourceDirectory(buf);
+                buf.position((int) orgpos);
             } else {
-                Data = new DataEntry(chan, offsetToData);
+                Data = new DataEntry(buf/* todo, offsetToData*/);
             }
         }
 
-        public String extractStringAt(FileChannel chan, int offset) throws
-                IOException {
+        public String extractStringAt(ByteBuffer chan, int offset) {
             long orgchanpos = chan.position();
-            chan.position(PEResourceDirectory.this.m_offsetBase + offset);
+            chan.position((int) (PEResourceDirectory.this.offset + offset));
 
+            /* todo
             ByteBuffer sizebuf = ByteBuffer.allocate(2);
             sizebuf.order(ByteOrder.LITTLE_ENDIAN);
             chan.read(sizebuf);
@@ -214,7 +213,8 @@ public class PEResourceDirectory {
             }
 
             chan.position(orgchanpos);
-            return buf.toString();
+            return buf.toString();*/
+            return "a";
         }
 
         public int diskSize() {
@@ -312,7 +312,6 @@ public class PEResourceDirectory {
     }
 
     public class ImageResourceDirectory {
-
         long Characteristics; // uint32_t
         public long TimeDateStamp; // uint32_t
         int MajorVersion; // uint16_t
@@ -322,15 +321,7 @@ public class PEResourceDirectory {
         List<ResourceEntry> NamedEntries = new ArrayList<ResourceEntry>();
         List<ResourceEntry> IdEntries = new ArrayList<ResourceEntry>();
 
-        public ImageResourceDirectory() {
-        }
-
-        public ImageResourceDirectory(FileChannel chan) throws IOException {
-            ByteBuffer header = ByteBuffer.allocate(16);
-            header.order(ByteOrder.LITTLE_ENDIAN);
-            chan.read(header);
-            header.position(0);
-
+        public ImageResourceDirectory(ByteBuffer header) {
             Characteristics = header.getInt();
             TimeDateStamp = header.getInt();
             MajorVersion = header.getShort();
@@ -339,11 +330,11 @@ public class PEResourceDirectory {
             short NumberOfIdEntries = header.getShort();
 
             for (int i = 0; i < NumberOfNamedEntries; i++) {
-                ResourceEntry re = new ResourceEntry(chan);
+                ResourceEntry re = new ResourceEntry(header);
                 NamedEntries.add(re);
             }
             for (int i = 0; i < NumberOfIdEntries; i++) {
-                ResourceEntry re = new ResourceEntry(chan);
+                ResourceEntry re = new ResourceEntry(header);
                 IdEntries.add(re);
             }
         }
@@ -511,40 +502,47 @@ public class PEResourceDirectory {
         }
     }
 
-    public PESectionHeader m_master;
-    PEFile m_file;
-    long m_offsetBase;
+    private long offset;
+
+    public long virtualBaseOffset;
+    private final long virtualAddress;
+    private final long pointerToRawData;
+
     PEResourceDirectory.ImageResourceDirectory m_root;
 
     /**
      * Creates a new instance of PEResourceDirectory
      *
-     * @param file PE
-     * @param sect resource section
-     * @throws IOException if something cannot be read
+     * @param offset offset in the file
      */
-    public PEResourceDirectory(PEFile file, PESectionHeader sect) throws IOException {
-        m_master = sect;
-        m_file = file;
-        m_offsetBase = sect.PointerToRawData;
-        init();
-
-        //		System.out.println("--------\nTOTAL SIZE: " + m_root.diskSize());
-
-        //		System.out.println("\n\n");
+    public PEResourceDirectory(long offset, long virtualBaseOffset,
+            long pointerToRawData, long virtualAddress) {
+        this.offset = offset;
+        this.virtualBaseOffset = virtualBaseOffset;
+        this.pointerToRawData = pointerToRawData;
+        this.virtualAddress = virtualAddress;
     }
 
-    public void init() throws IOException {
-        ///		System.out.println("RESOURCE INIT");
-        //		System.out.println("   Offset: " + m_master.PointerToRawData);
-        FileChannel chan = m_file.getChannel();
-        chan.position(m_master.PointerToRawData);
-        PEResourceDirectory.ImageResourceDirectory dir = new PEResourceDirectory.ImageResourceDirectory(
-                chan);
-        //		System.out.println("-----------------\nDUMP\n---------------");
-        m_root = dir;
+    public long getLocation() {
+        return offset;
+    }
 
-        //		dir.dump(System.out, 0);
+    public void setLocation(long location) {
+        this.offset = location;
+    }
+
+    public ByteBuffer getData() {
+        int resourceSize = m_root.diskSize();
+        ByteBuffer resbuf = ByteBuffer.allocate(resourceSize);
+        resbuf.order(ByteOrder.LITTLE_ENDIAN);
+        resbuf.position(0);
+        m_root.buildBuffer(resbuf, virtualBaseOffset);
+        return resbuf;
+    }
+
+    public void setData(ByteBuffer data) {
+        m_root = new PEResourceDirectory.ImageResourceDirectory(
+                data);
     }
 
     public void dump(PrintStream out) {
@@ -553,16 +551,6 @@ public class PEResourceDirectory {
 
     public int size() {
         return m_root.diskSize();
-    }
-
-    public ByteBuffer buildResource(long virtualBaseOffset) {
-        // System.out.println("BUILDING RESOURCE / VIRTUAL: " + virtualBaseOffset);
-        int resourceSize = m_root.diskSize();
-        ByteBuffer resbuf = ByteBuffer.allocate(resourceSize);
-        resbuf.order(ByteOrder.LITTLE_ENDIAN);
-        resbuf.position(0);
-        m_root.buildBuffer(resbuf, virtualBaseOffset);
-        return resbuf;
     }
 
     public PEResourceDirectory.ImageResourceDirectory getRoot() {
@@ -587,7 +575,7 @@ public class PEResourceDirectory {
         }
         return false;
     }
-
+/*
     public void addNewResource(String catId, String resourceId,
             String languageId, ByteBuffer data) {
         DataEntry dataEntry = new DataEntry(data);
@@ -605,7 +593,7 @@ public class PEResourceDirectory {
 
         ResourceEntry catEntry = buildResourceEntry(catId, identDir);
         m_root.addEntry(catEntry);
-    }
+    }*/
 
     public DataEntry getData(String catId, String resourceId, String langId) {
         ResourceEntry catEntry = m_root.getResourceEntry(catId);
