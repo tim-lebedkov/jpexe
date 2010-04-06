@@ -155,6 +155,7 @@ public class PEOldMSHeader implements Cloneable, BinaryRecord {
         }
         mz.putLong(e_lfanew);       // File address of new exe header // 3C
 
+        mz.position(0);
         return mz;
     }
 

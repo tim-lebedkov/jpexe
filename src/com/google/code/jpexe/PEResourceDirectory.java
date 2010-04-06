@@ -511,7 +511,7 @@ public class PEResourceDirectory {
         }
     }
 
-    public PESection m_master;
+    public PESectionHeader m_master;
     PEFile m_file;
     long m_offsetBase;
     PEResourceDirectory.ImageResourceDirectory m_root;
@@ -523,7 +523,7 @@ public class PEResourceDirectory {
      * @param sect resource section
      * @throws IOException if something cannot be read
      */
-    public PEResourceDirectory(PEFile file, PESection sect) throws IOException {
+    public PEResourceDirectory(PEFile file, PESectionHeader sect) throws IOException {
         m_master = sect;
         m_file = file;
         m_offsetBase = sect.PointerToRawData;

@@ -44,6 +44,7 @@ public class SimpleBinaryRecord implements BinaryRecord {
     }
 
     public ByteBuffer getData() {
+        data.position(0);
         return data;
     }
 

@@ -23,42 +23,60 @@ import java.nio.*;
 import java.nio.channels.*;
 
 /**
- * A section in a PE file.
+ * A section header in a PE file.
  */
-public class PESection implements Cloneable {
+public class PESectionHeader implements Cloneable {
     /** this field is always 8 bytes long */
-    public byte[] ANSI_Name; //  	Name of the Section. Can be anything (0)(8BYTES)
+    public byte[] ANSI_Name; // Name of the Section. Can be anything (0)(8BYTES)
 
-    public long VirtualSize; // 	The size of the section when it is mapped to memory. Must be a multiple of 4096. (8)(DWORD)
-    public long VirtualAddress; // 	An rva to where it should be mapped in memory. (12)(DWORD)
-    public long SizeOfRawData; // 	The size of the section in the PE file. Must be a multiple of 512 (16)(DWORD)
-    public long PointerToRawData; // 	A file based offset which points to the location of this sections data (20)(DWORD)
-    public long PointerToRelocations; // 	In EXE's this field is meaningless, and is set 0 (24)(DWORD)
-    public long PointerToLinenumbers; // 	This is the file-based offset of the line number table. This field is only used for debug purposes, and is usualy set to 0 (28)(DWORD)
-    public int NumberOfRelocations; // 	In EXE's this field is meaningless, and is set 0 (32)(WORD)
-    public int NumberOfLinenumbers; // 	The number of line numbers in the line number table for this section. This field is only used for debug purposes, and is usualy set to 0 (34)(WORD)
-    public long Characteristics; // 	The kind of data stored in this section ie. Code, Data, Import data, Relocation data (36)(DWORD)
+    // The size of the section when it is mapped to memory. Must be a multiple of 4096. (8)(DWORD)
+    public long VirtualSize;
+
+    // An rva to where it should be mapped in memory. (12)(DWORD)
+    public long VirtualAddress;
+
+    // The size of the section in the PE file. Must be a multiple of 512 (16)(DWORD)
+    public long SizeOfRawData;
+
+    // A file based offset which points to the location of this sections data (20)(DWORD)
+    public long PointerToRawData;
+
+    // In EXE's this field is meaningless, and is set 0 (24)(DWORD)
+    public long PointerToRelocations;
+
+    // This is the file-based offset of the line number table. This field is only used for debug purposes, and is usualy set to 0 (28)(DWORD)
+    public long PointerToLinenumbers;
+
+    // In EXE's this field is meaningless, and is set 0 (32)(WORD)
+    public int NumberOfRelocations;
+
+    // The number of line numbers in the line number table for this section. This field is only used for debug purposes, and is usualy set to 0 (34)(WORD)
+    public int NumberOfLinenumbers;
+
+    // The kind of data stored in this section ie. Code, Data, Import data, Relocation data (36)(DWORD)
+    public long Characteristics;
+    
     private long m_baseoffset;
     private PEFile m_pe;
 
     /**
-     * Creates a new instance of PESection
+     * Creates a new instance of PESectionHeader
      *
      * @param pef PE
      * @param baseoffset offset of this section?
      */
-    public PESection(PEFile pef, long baseoffset) {
+    public PESectionHeader(PEFile pef, long baseoffset) {
         m_pe = pef;
         m_baseoffset = baseoffset;
     }
 
     /**
-     * Creates a new instance of PESection.
+     * Creates a new instance of PESectionHeader.
      * 
      * @param pef PE file
      * @param name name of the section (no more than 8 ANSI characters)
      */
-    public PESection(PEFile pef, String name) {
+    public PESectionHeader(PEFile pef, String name) {
         m_pe = pef;
         this.ANSI_Name = new byte[8];
         byte[] bytes = name.getBytes();

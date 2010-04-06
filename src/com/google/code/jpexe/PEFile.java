@@ -46,7 +46,7 @@ public class PEFile {
 
     public PEHeader header;
 
-    private List<PESection> sections = new ArrayList<PESection>();
+    private List<PESectionHeader> sections = new ArrayList<PESectionHeader>();
 
     private PEResourceDirectory m_resourceDir;
 
@@ -63,7 +63,7 @@ public class PEFile {
      * @return sections of the file. The returned list should not be modified
      *     directly.
      */
-    public List<PESection> getSections() {
+    public List<PESectionHeader> getSections() {
         return Collections.unmodifiableList(sections);
     }
 
@@ -97,9 +97,8 @@ public class PEFile {
         long offset = headoffset + (header.NumberOfRvaAndSizes * 8) + 24 + 96;
 
         for (int i = 0; i < seccount; i++) {
-            PESection sect = new PESection(this, offset);
+            PESectionHeader sect = new PESectionHeader(this, offset);
             sect.read();
-            // sect.dump(System.out);
             sections.add(sect);
             offset += 40;
         }
@@ -107,7 +106,7 @@ public class PEFile {
         ByteBuffer resbuf = null;
         long resourceoffset = header.ResourceDirectory_VA;
         for (int i = 0; i < seccount; i++) {
-            PESection sect = sections.get(i);
+            PESectionHeader sect = sections.get(i);
             if (sect.VirtualAddress == resourceoffset) {
                 //			System.out.println("  Resource section found: " + resourceoffset);
                 PEResourceDirectory prd = new PEResourceDirectory(this, sect);
@@ -128,7 +127,7 @@ public class PEFile {
 
         long resourceoffset = header.ResourceDirectory_VA;
         for (int i = 0; i < sections.size(); i++) {
-            PESection sect = sections.get(i);
+            PESectionHeader sect = sections.get(i);
             if (sect.VirtualAddress == resourceoffset) {
                 m_resourceDir = new PEResourceDirectory(this, sect);
                 return m_resourceDir;
@@ -143,9 +142,9 @@ public class PEFile {
      *
      * @param s new section. VirtualAddress will be set automatically.
      */
-    public void addSection(PESection s) {
+    public void addSection(PESectionHeader s) {
         long va = -1;
-        for (PESection s2: this.sections) {
+        for (PESectionHeader s2: this.sections) {
             if (s2.VirtualAddress > va) {
                 va = s2.VirtualAddress;
                 s.VirtualAddress = s2.VirtualAddress + s2.VirtualSize;
@@ -163,10 +162,10 @@ public class PEFile {
         FileChannel out = fos.getChannel();
 
         // Make a copy of the Header, for safe modifications
-        List<PESection> sections = new ArrayList<PESection>();
+        List<PESectionHeader> sections = new ArrayList<PESectionHeader>();
         for (int i = 0; i < sections.size(); i++) {
-            PESection sect = sections.get(i);
-            PESection cs = (PESection) sect.clone();
+            PESectionHeader sect = sections.get(i);
+            PESectionHeader cs = (PESectionHeader) sect.clone();
             sections.add(cs);
         }
 
@@ -194,7 +193,7 @@ public class PEFile {
         out.position(offset);
         for (int i = 0; i < sections.size(); i++) {
             // System.out.println("  offset: " + out.position());
-            PESection sect = sections.get(i);
+            PESectionHeader sect = sections.get(i);
 
             ByteBuffer buf = sect.get();
             outputcount = out.write(buf);
@@ -215,7 +214,7 @@ public class PEFile {
         // Dump each section data
         long resourceoffset = header.ResourceDirectory_VA;
         for (int i = 0; i < sections.size(); i++) {
-            PESection sect = sections.get(i);
+            PESectionHeader sect = sections.get(i);
             if (resourceoffset == sect.VirtualAddress) {
                 // System.out.println("Dumping RES section " + i + " at " + offset + " from " + sect.PointerToRawData + " (VA=" + virtualAddress + ")");
                 out.position(offset);
@@ -266,13 +265,11 @@ public class PEFile {
                 long outted = out.transferFrom(this.channel, offset,
                         sect.SizeOfRawData);
                 offset += sect.SizeOfRawData;
-                //			System.out.println("offset before alignment, " + offset);
 
                 long rem = offset % this.header.FileAlignment;
                 if (rem != 0) {
                     offset += this.header.FileAlignment - rem;
                 }
-                //			System.out.println("offset after alignment, " + offset);
 
                 // 			long virtualSize = sect.SizeOfRawData;
                 // 			if ((virtualSize % peheader.SectionAlignment)>0)
@@ -291,7 +288,6 @@ public class PEFile {
             } else {
                 // generally a BSS, with a virtual size but no
                 // data in the file...
-                //			System.out.println("Dumping section " + i + " at " + offset + " from " + sect.PointerToRawData + " (VA=" + virtualAddress + ")");
                 long virtualSize = sect.VirtualSize;
                 if ((virtualSize % this.header.SectionAlignment) > 0) {
                     virtualSize += this.header.SectionAlignment -
@@ -307,7 +303,6 @@ public class PEFile {
         // Now that all the sections have been written, we have the
         // correct VirtualAddress and Sizes, so we can update the new
         // header and all the section headers...
-
         this.header.updateVAAndSize(sections, sections);
 
         bb = this.header.getData();
@@ -315,15 +310,11 @@ public class PEFile {
         out.position(oldMSDOSHeader.e_lfanew);
         outputcount = out.write(bb);
 
-        // peheader.dump(System.out);
-        ///	System.out.println("Dumping the section again...");
         offset = this.oldMSDOSHeader.e_lfanew +
                 (header.NumberOfRvaAndSizes * 8) + 24 + 96;
         out.position(offset);
         for (int i = 0; i < sections.size(); i++) {
-            //		System.out.println("  offset: " + out.position());
-            PESection sect = sections.get(i);
-            // sect.dump(System.out);
+            PESectionHeader sect = sections.get(i);
             ByteBuffer buf = sect.get();
             outputcount = out.write(buf);
         }
@@ -332,7 +323,11 @@ public class PEFile {
         fos.close();
     }
 
-    /*
+    /**
+     * Replaces default .exe icon.
+     *
+     * @param icon new icon
+     * @throws Exception if no icon exist in the .exe
      */
     public void replaceDefaultIcon(ResIcon icon) throws Exception {
         PEResourceDirectory resdir = getResourceDirectory();
@@ -343,20 +338,14 @@ public class PEFile {
         }
 
         entry.Data.position(0);
-        //	System.out.println("DataEntry found : " + entry + " (size=" + entry.Data.remaining() + ")");
         entry.Data.position(0);
 
         ResIconDir rid = new ResIconDir(entry.Data);
-        //	System.out.println("ResIconDir :");
-        //	System.out.println(rid.toString());
         int iconid = rid.getEntries()[0].dwImageOffset;
-        //	System.out.println("Icon Index: " + iconid);
 
         PEResourceDirectory.DataEntry iconentry = resdir.getData("#3", "#"
                 + iconid, null);
         iconentry.Data.position(0);
-        //	System.out.println("Icon :");
-        //	System.out.println(icon.toString());
 
         rid.getEntries()[0].bWidth = (short) icon.Width;
         rid.getEntries()[0].bHeight = (short) (icon.Height / 2);

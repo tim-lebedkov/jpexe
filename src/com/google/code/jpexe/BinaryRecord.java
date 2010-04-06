@@ -42,9 +42,9 @@ public interface BinaryRecord {
     /**
      * The returned data should not be modified. An implementation may decide
      * to cache the data or just present a view over a file. The returned data
-     * must reside in the returned buffer from the position 0, but the state of
-     * the internal pointer must not necessary be 0. The length of the returned
-     * buffer must be the length of the data of this record.
+     * must reside in the returned buffer from the position 0. The length 
+     * of the returned buffer must be the length of the data of this record.
+     * The returned buffer must have its position at 0.
      *
      * @return the data
      */

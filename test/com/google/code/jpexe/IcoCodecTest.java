@@ -21,13 +21,15 @@ package com.google.code.jpexe;
 
 import java.awt.Image;
 import java.io.File;
+import org.junit.Test;
 
 /**
  * Tests for IcoCodec
  */
 public class IcoCodecTest {
-    static public void main(String[] args) throws Exception {
-        File f = new File(args[0]);
+    @Test
+    public void simple() throws Exception {
+        /*File f = new File("test/7zFM.exe");
         Image img = IcoCodec.loadImages(f)[0];
         //	System.out.println("img = " + img);
 
@@ -36,6 +38,6 @@ public class IcoCodecTest {
                 img));
         jf.getContentPane().add(button);
         jf.pack();
-        jf.setVisible(true);
+        jf.setVisible(true);*/
     }
 }
