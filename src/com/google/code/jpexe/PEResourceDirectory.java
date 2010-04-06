@@ -24,7 +24,7 @@ import java.nio.*;
 import java.nio.channels.*;
 
 /**
- *
+ * Navigable directory in the resource section in a PE.
  */
 public class PEResourceDirectory {
     /*
@@ -66,7 +66,6 @@ public class PEResourceDirectory {
                     - PEResourceDirectory.this.m_master.VirtualAddress);
             Data = ByteBuffer.allocate((int) Size);
             Data.order(ByteOrder.LITTLE_ENDIAN);
-            System.out.println("datapos " + datapos);
             chan.position(datapos);
             chan.read(Data);
             Data.position(0);
@@ -264,7 +263,7 @@ public class PEResourceDirectory {
                 int dataOffset) {
             //			System.out.println("Building Resource Entry buffer  " + Name + "/" + Id + " @ " + buffer.position() + " (" + dataOffset + ")");
             if (Name != null) {
-                buffer.putInt((int) (dataOffset | 0x80000000));
+                buffer.putInt(dataOffset | 0x80000000);
 
                 int stringoffset = dataOffset;
                 ByteBuffer strbuf = ByteBuffer.allocate(Name.length() * 2 + 2);
@@ -289,7 +288,7 @@ public class PEResourceDirectory {
             }
 
             if (Directory != null) {
-                buffer.putInt((int) (dataOffset | 0x80000000));
+                buffer.putInt(dataOffset | 0x80000000);
 
                 int oldpos = buffer.position();
                 buffer.position(dataOffset);
@@ -434,13 +433,13 @@ public class PEResourceDirectory {
                     size() * 8);
 
             for (int i = 0; i < this.NamedEntries.size(); i++) {
-                ResourceEntry re = (ResourceEntry) this.NamedEntries.get(i);
+                ResourceEntry re = this.NamedEntries.get(i);
                 dataOffset = re.buildBuffer(buffer, virtualBaseOffset,
                         dataOffset);
             }
 
             for (int i = 0; i < this.IdEntries.size(); i++) {
-                ResourceEntry re = (ResourceEntry) this.IdEntries.get(i);
+                ResourceEntry re = this.IdEntries.get(i);
                 dataOffset = re.buildBuffer(buffer, virtualBaseOffset,
                         dataOffset);
             }
@@ -517,7 +516,13 @@ public class PEResourceDirectory {
     long m_offsetBase;
     PEResourceDirectory.ImageResourceDirectory m_root;
 
-    /** Creates a new instance of PEResourceDirectory */
+    /**
+     * Creates a new instance of PEResourceDirectory
+     *
+     * @param file PE
+     * @param sect resource section
+     * @throws IOException if something cannot be read
+     */
     public PEResourceDirectory(PEFile file, PESection sect) throws IOException {
         m_master = sect;
         m_file = file;

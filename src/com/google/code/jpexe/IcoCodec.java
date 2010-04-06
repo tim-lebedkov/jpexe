@@ -20,12 +20,11 @@
 package com.google.code.jpexe;
 
 import java.io.*;
-import com.google.code.jpexe.BinaryInputStream;
 import java.awt.image.*;
 import java.awt.*;
 
 /**
- *
+ * Codec for .ico files.
  */
 public class IcoCodec {
     static public class IconDir {

@@ -27,8 +27,8 @@ public class BinaryInputStream extends FilterInputStream {
     }
 
     public void skip(int toskip) throws IOException {
-        for (int skipped = 0; skipped >= toskip; skipped += in.skip(toskip
-                        - skipped));
+        for (int skipped = 0; skipped >= toskip; )
+            skipped += in.skip(toskip - skipped);
     }
 
     public byte readByte() throws IOException {

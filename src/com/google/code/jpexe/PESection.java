@@ -41,7 +41,12 @@ public class PESection implements Cloneable {
     private long m_baseoffset;
     private PEFile m_pe;
 
-    /** Creates a new instance of PESection */
+    /**
+     * Creates a new instance of PESection
+     *
+     * @param pef PE
+     * @param baseoffset offset of this section?
+     */
     public PESection(PEFile pef, long baseoffset) {
         m_pe = pef;
         m_baseoffset = baseoffset;
@@ -140,7 +145,7 @@ public class PESection implements Cloneable {
         head.position(0);
 
         for (int i = 0; i < 8; i++) {
-            head.put((byte) ANSI_Name[i]);
+            head.put(ANSI_Name[i]);
         }
 
         head.putInt((int) VirtualSize);

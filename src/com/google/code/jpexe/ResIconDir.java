@@ -16,10 +16,14 @@
  * along with this program; if not, write to the Free Software
  * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
+
 package com.google.code.jpexe;
 
 import java.nio.*;
 
+/**
+ * Directory of icons in the resource section ?
+ */
 public class ResIconDir {
 
     private int m_idReserved;   // Reserved (must be 0)
@@ -84,7 +88,11 @@ public class ResIconDir {
         }
     }
 
-    /** Creates a new instance of ResIconDir */
+    /**
+     * Creates a new instance of ResIconDir
+     *
+     * @param buf content
+     */
     public ResIconDir(ByteBuffer buf) {
         m_idReserved = buf.getShort();
         m_idType = buf.getShort();

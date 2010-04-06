@@ -24,7 +24,7 @@ import java.awt.*;
 import java.awt.image.*;
 
 /**
- * 
+ * Icon in the resource section of a PE?
  */
 public class ResIcon {
 
@@ -90,7 +90,7 @@ public class ResIcon {
             cols = 1 << BitsPerPixel;
         }
 
-        Palette = new PaletteElement[(int) cols];
+        Palette = new PaletteElement[cols];
         for (int i = 0; i < Palette.length; i++) {
             PaletteElement el = new PaletteElement();
             el.Blue = in.get();
@@ -141,6 +141,7 @@ public class ResIcon {
 
     /** Creates a new instance based on the data of the Image argument.
      * @param img
+     * @throws Exception ?
      */
     public ResIcon(Image img) throws Exception {
         int width = img.getWidth(null);
@@ -234,7 +235,7 @@ public class ResIcon {
         }
 
         BitmapXOR = new short[(((int) Height / 2) * (int) Width
-                * (int) BitsPerPixel) / 8];
+                * BitsPerPixel) / 8];
         BitmapAND = new short[((int) Height / 2) * rowsize];
 
         int bxl = BitmapXOR.length - 1;

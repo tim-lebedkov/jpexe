@@ -260,6 +260,9 @@ public class Quantize {
     /**
      * Reduce the image to the given number of colors. The pixels are
      * reduced in place.
+     *
+     * @param pixels pixels of the image?
+     * @param max_colors ?
      * @return The new color palette.
      */
     public static int[] quantizeImage(int pixels[][], int max_colors) {
