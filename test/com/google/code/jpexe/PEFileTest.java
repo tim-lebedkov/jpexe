@@ -30,17 +30,16 @@ import static org.junit.Assert.*;
  * Tests PEFile.
  */
 public class PEFileTest {
-    @BeforeClass
-    public static void setUpClass() throws Exception {
-    }
-
-    @AfterClass
-    public static void tearDownClass() throws Exception {
-    }
-
     @Test
     public void read7zip() throws IOException {
         PEFile pef = new PEFile(new File("test/7z.exe"));
+        pef.open();
+        pef.close();
+    }
+
+    @Test
+    public void read7zFM() throws IOException {
+        PEFile pef = new PEFile(new File("test/7zFM.exe"));
         pef.open();
         pef.close();
     }
