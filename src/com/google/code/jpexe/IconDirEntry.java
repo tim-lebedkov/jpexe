@@ -26,52 +26,52 @@ import java.nio.ByteOrder;
  * One entry in a directory of resource icons.
  */
 public class IconDirEntry {
-    public short bWidth; // Width, in pixels, of the image
-    public short bHeight; // Height, in pixels, of the image
-    public short bColorCount; // Number of colors in image (0 if >=8bpp)
-    public short bReserved; // Reserved ( must be 0)
-    public int wPlanes; // Color Planes
-    public int wBitCount; // Bits per pixel
-    public long dwBytesInRes; // How many bytes in this resource?
-    public int dwImageOffset; // Where in the file is this image?
+    public short width; // Width, in pixels, of the image
+    public short height; // Height, in pixels, of the image
+    public short colorCount; // Number of colors in image (0 if >=8bpp)
+    public short reserved; // Reserved ( must be 0)
+    public int planes; // Color Planes
+    public int bitCount; // Bits per pixel
+    public long bytesInRes; // How many bytes in this resource?
+    public int imageOffset; // Where in the file is this image?
 
     public IconDirEntry(ByteBuffer buf) {
-        bWidth = buf.get();
-        bHeight = buf.get();
-        bColorCount = buf.get();
-        bReserved = buf.get();
-        wPlanes = buf.getShort();
-        wBitCount = buf.getShort();
-        dwBytesInRes = buf.getInt();
-        dwImageOffset = buf.getShort();
+        width = buf.get();
+        height = buf.get();
+        colorCount = buf.get();
+        reserved = buf.get();
+        planes = buf.getShort();
+        bitCount = buf.getShort();
+        bytesInRes = buf.getInt();
+        imageOffset = buf.getShort();
     }
 
     public ByteBuffer getData() {
         ByteBuffer buf = ByteBuffer.allocate(16);
         buf.order(ByteOrder.LITTLE_ENDIAN);
         buf.position(0);
-        buf.put((byte) bWidth);
-        buf.put((byte) bHeight);
-        buf.put((byte) bColorCount);
-        buf.put((byte) bReserved);
-        buf.putShort((short) wPlanes);
-        buf.putShort((short) wBitCount);
-        buf.putInt((int) dwBytesInRes);
-        buf.putShort((short) dwImageOffset);
+        buf.put((byte) width);
+        buf.put((byte) height);
+        buf.put((byte) colorCount);
+        buf.put((byte) reserved);
+        buf.putShort((short) planes);
+        buf.putShort((short) bitCount);
+        buf.putInt((int) bytesInRes);
+        buf.putShort((short) imageOffset);
         buf.position(0);
         return buf;
     }
 
     public String toString() {
         StringBuffer out = new StringBuffer();
-        out.append("bWidth: " + bWidth + "\n"); // Width, in pixels, of the image
-        out.append("bHeight: " + bHeight + "\n"); // Height, in pixels, of the image
-        out.append("bColorCount: " + bColorCount + "\n"); // Number of colors in image (0 if >=8bpp)
-        out.append("bReserved: " + bReserved + "\n"); // Reserved ( must be 0)
-        out.append("wPlanes: " + wPlanes + "\n"); // Color Planes
-        out.append("wBitCount: " + wBitCount + "\n"); // Bits per pixel
-        out.append("dwBytesInRes: " + dwBytesInRes + "\n"); // How many bytes in this resource?
-        out.append("dwImageOffset: " + dwImageOffset + "\n"); // Where in the file is this image?
+        out.append("bWidth: " + width + "\n"); // Width, in pixels, of the image
+        out.append("bHeight: " + height + "\n"); // Height, in pixels, of the image
+        out.append("bColorCount: " + colorCount + "\n"); // Number of colors in image (0 if >=8bpp)
+        out.append("bReserved: " + reserved + "\n"); // Reserved ( must be 0)
+        out.append("wPlanes: " + planes + "\n"); // Color Planes
+        out.append("wBitCount: " + bitCount + "\n"); // Bits per pixel
+        out.append("dwBytesInRes: " + bytesInRes + "\n"); // How many bytes in this resource?
+        out.append("dwImageOffset: " + imageOffset + "\n"); // Where in the file is this image?
         return out.toString();
     }
 }

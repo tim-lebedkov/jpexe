@@ -27,22 +27,22 @@ import java.nio.*;
 public class ResIconDir implements BinaryRecord {
     private long location;
 
-    private int m_idReserved;   // Reserved (must be 0)
-    private int m_idType;       // Resource Type (1 for icons)
-    private int m_idCount;      // How many images?
-    private IconDirEntry[] m_entries;
+    private int idReserved;   // Reserved (must be 0)
+    private int idType;       // Resource Type (1 for icons)
+    private int idCount;      // How many images?
+    private IconDirEntry[] entries;
 
     public ByteBuffer getData() {
-        ByteBuffer buf = ByteBuffer.allocate(6 + (16 * m_idCount));
+        ByteBuffer buf = ByteBuffer.allocate(6 + (16 * idCount));
         buf.order(ByteOrder.LITTLE_ENDIAN);
         buf.position(0);
 
-        buf.putShort((short) m_idReserved);
-        buf.putShort((short) m_idType);
-        buf.putShort((short) m_idCount);
+        buf.putShort((short) idReserved);
+        buf.putShort((short) idType);
+        buf.putShort((short) idCount);
 
-        for (int i = 0; i < m_idCount; i++) {
-            ByteBuffer b = m_entries[i].getData();
+        for (int i = 0; i < idCount; i++) {
+            ByteBuffer b = entries[i].getData();
             b.position(0);
             buf.put(b);
         }
@@ -51,17 +51,17 @@ public class ResIconDir implements BinaryRecord {
     }
 
     public IconDirEntry[] getEntries() {
-        return m_entries;
+        return entries;
     }
 
     public String toString() {
         StringBuffer out = new StringBuffer();
-        out.append("m_idReserved: " + m_idReserved + "\n");   // Reserved (must be 0)
-        out.append("m_idType: " + m_idType + "\n");       // Resource Type (1 for icons)
-        out.append("m_idCount: " + m_idCount + "\n");      // How many images?
+        out.append("m_idReserved: " + idReserved + "\n");   // Reserved (must be 0)
+        out.append("m_idType: " + idType + "\n");       // Resource Type (1 for icons)
+        out.append("m_idCount: " + idCount + "\n");      // How many images?
         out.append("entries: ---- \n");
-        for (int i = 0; i < m_entries.length; i++) {
-            out.append(m_entries[i].toString());
+        for (int i = 0; i < entries.length; i++) {
+            out.append(entries[i].toString());
         }
 
         return out.toString();
@@ -76,13 +76,13 @@ public class ResIconDir implements BinaryRecord {
     }
 
     public void setData(ByteBuffer buf) {
-        m_idReserved = buf.getShort();
-        m_idType = buf.getShort();
-        m_idCount = buf.getShort();
+        idReserved = buf.getShort();
+        idType = buf.getShort();
+        idCount = buf.getShort();
 
-        m_entries = new IconDirEntry[m_idCount];
-        for (int i = 0; i < m_idCount; i++) {
-            m_entries[i] = new IconDirEntry(buf);
+        entries = new IconDirEntry[idCount];
+        for (int i = 0; i < idCount; i++) {
+            entries[i] = new IconDirEntry(buf);
         }
     }
 }

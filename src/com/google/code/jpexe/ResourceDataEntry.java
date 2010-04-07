@@ -23,19 +23,19 @@ import java.io.PrintStream;
 import java.nio.ByteBuffer;
 
 /**
- * Data for a resource entry.
+ * data for a resource entry.
  */
 public class ResourceDataEntry implements BinaryRecord {
     private long location;
 
-    long OffsetToData; // To update at each change
-    long Size;
-    long CodePage; // never changed
-    long Reserved; // never changed
-    ByteBuffer Data;
+    long offsetToData; // To update at each change
+    long size;
+    long codePage; // never changed
+    long reserved; // never changed
+    ByteBuffer data;
 
     public int diskSize() {
-        int size = 16 + (int) this.Size;
+        int size = 16 + (int) this.size;
         if ((size % 4) > 0) {
             size += 4 - (size % 4);
         }
@@ -44,18 +44,18 @@ public class ResourceDataEntry implements BinaryRecord {
 
     public void dump(PrintStream out, int level) {
         indent(level, out);
-        out.println("OffsetToData=" + OffsetToData);
+        out.println("OffsetToData=" + offsetToData);
         indent(level, out);
-        out.println("Size=" + Size);
+        out.println("Size=" + size);
         indent(level, out);
-        out.println("CodePage=" + CodePage);
+        out.println("CodePage=" + codePage);
         indent(level, out);
-        out.println("Reserved=" + Reserved);
+        out.println("Reserved=" + reserved);
         indent(level, out);
         out.print("Data={ ");
-        for (int i = 0; i < this.Data.capacity();
+        for (int i = 0; i < this.data.capacity();
                 i++) {
-            out.print("" + Integer.toHexString(Data.get(i)) + ",");
+            out.print("" + Integer.toHexString(data.get(i)) + ",");
         }
         out.println(" }");
     }
@@ -68,21 +68,21 @@ public class ResourceDataEntry implements BinaryRecord {
     }
 
     public void setData(ByteBuffer data) {
-        Data = data;
-        Size = data.capacity();
+        this.data = data;
+        size = data.capacity();
         ByteBuffer buf = data;
-        OffsetToData = buf.getInt();
-        Size = buf.getInt();
-        CodePage = buf.getInt();
-        Reserved = buf.getInt();
+        offsetToData = buf.getInt();
+        size = buf.getInt();
+        codePage = buf.getInt();
+        reserved = buf.getInt();
         /* todo
-        long datapos = PEResourceDirectory.this.pointerToRawData + (OffsetToData
+        long datapos = PEResourceDirectory.this.pointerToRawData + (offsetToData
         - PEResourceDirectory.this.virtualAddress);
-        Data = ByteBuffer.allocate((int) Size);
-        Data.order(ByteOrder.LITTLE_ENDIAN);
+        data = ByteBuffer.allocate((int) size);
+        data.order(ByteOrder.LITTLE_ENDIAN);
         chan.position(datapos);
-        chan.read(Data);
-        Data.position(0);
+        chan.read(data);
+        data.position(0);
         chan.position(orgpos);
          *
          */
@@ -100,15 +100,15 @@ public class ResourceDataEntry implements BinaryRecord {
         ByteBuffer buffer = ByteBuffer.allocate(100); // TODO
         long virtualBaseOffset = 0; // TODO
         int dataOffset = 0; // TODO
-        //			System.out.println("Building Data Entry buffer @ " + buffer.position() + " (" + dataOffset + ")");
+        //			System.out.println("Building data Entry buffer @ " + buffer.position() + " (" + dataOffset + ")");
         dataOffset = buffer.position() + 16;
         buffer.putInt((int) (dataOffset + virtualBaseOffset));
-        buffer.putInt((int) Size);
-        buffer.putInt((int) CodePage);
-        buffer.putInt((int) Reserved);
-        Data.position(0);
-        buffer.put(Data);
-        dataOffset += Size;
+        buffer.putInt((int) size);
+        buffer.putInt((int) codePage);
+        buffer.putInt((int) reserved);
+        data.position(0);
+        buffer.put(data);
+        dataOffset += size;
         if ((dataOffset % 4) > 0) {
             dataOffset += (4 - (dataOffset % 4));
         }

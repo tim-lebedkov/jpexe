@@ -29,75 +29,75 @@ import java.util.*;
 public class Header implements Cloneable, BinaryRecord {
     private long location;
 
-    public int Machine; //  4
-    public int NumberOfSections;     //  6
-    public long TimeDateStamp; //  8
-    public long PointerToSymbolTable;     //  C
-    public long NumberOfSymbols; // 10
-    public int SizeOfOptionalHeader;     // 14
-    public int Characteristics; // 16
+    public int machine; //  4
+    public int numberOfSections;     //  6
+    public long timeDateStamp; //  8
+    public long pointerToSymbolTable;     //  C
+    public long numberOfSymbols; // 10
+    public int sizeOfOptionalHeader;     // 14
+    public int characteristics; // 16
 
     // Optional Header 
-    public int Magic;     // 18
-    public short MajorLinkerVersion;     // 1a
-    public short MinorLinkerVersion; // 1b
-    public long SizeOfCode;     // 1c
-    public long SizeOfInitializedData; // 20
-    public long SizeOfUninitializedData;     // 24
-    public long AddressOfEntryPoint; // 28
-    public long BaseOfCode;     // 2c
-    public long BaseOfData;    //  NT additional fields.  30
-    public long ImageBase;     // 34
-    public long SectionAlignment; // 38
-    public long FileAlignment;     // 3c
-    public int MajorOperatingSystemVersion; // 40
-    public int MinorOperatingSystemVersion;     // 42
-    public int MajorImageVersion; // 44
-    public int MinorImageVersion;     // 46
-    public int MajorSubsystemVersion; // 48
-    public int MinorSubsystemVersion;     // 4a
-    public long Reserved1;     // 4c
-    public long SizeOfImage; // 50
-    public long SizeOfHeaders;     // 54
-    public long CheckSum;     // 58
-    public int Subsystem; // 5c
-    public int DllCharacteristics;     // 5e
-    public long SizeOfStackReserve; // 60
-    public long SizeOfStackCommit;     // 64
-    public long SizeOfHeapReserve; // 68
-    public long SizeOfHeapCommit;     // 6c
-    public long LoaderFlags; // 70
-    public long NumberOfRvaAndSizes; // 74
-    public long ExportDirectory_VA; // 78
-    public long ExportDirectory_Size; // 7c
-    public long ImportDirectory_VA; // 80
-    public long ImportDirectory_Size; // 84
-    public long ResourceDirectory_VA; // 88
-    public long ResourceDirectory_Size; // 8c
-    public long ExceptionDirectory_VA; // 90
-    public long ExceptionDirectory_Size; // 94
-    public long SecurityDirectory_VA; // 98
-    public long SecurityDirectory_Size; // 9c
-    public long BaseRelocationTable_VA; // a0
-    public long BaseRelocationTable_Size; // a4
-    public long DebugDirectory_VA; // a8
-    public long DebugDirectory_Size; // ac
-    public long ArchitectureSpecificData_VA; // b0
-    public long ArchitectureSpecificData_Size; // b4
-    public long RVAofGP_VA; // b8
-    public long RVAofGP_Size; // bc
-    public long TLSDirectory_VA; // c0
-    public long TLSDirectory_Size; // c4
-    public long LoadConfigurationDirectory_VA; // c8
-    public long LoadConfigurationDirectory_Size; // cc
-    public long BoundImportDirectoryinheaders_VA; // d0
-    public long BoundImportDirectoryinheaders_Size; // d4
-    public long ImportAddressTable_VA; // d8
-    public long ImportAddressTable_Size; // dc
-    public long DelayLoadImportDescriptors_VA; // e0
-    public long DelayLoadImportDescriptors_Size; // e4
-    public long COMRuntimedescriptor_VA; // e8
-    public long COMRuntimedescriptor_Size; // ec
+    public int magic;     // 18
+    public short majorLinkerVersion;     // 1a
+    public short minorLinkerVersion; // 1b
+    public long sizeOfCode;     // 1c
+    public long sizeOfInitializedData; // 20
+    public long sizeOfUninitializedData;     // 24
+    public long addressOfEntryPoint; // 28
+    public long baseOfCode;     // 2c
+    public long baseOfData;    //  NT additional fields.  30
+    public long imageBase;     // 34
+    public long sectionAlignment; // 38
+    public long fileAlignment;     // 3c
+    public int majorOperatingSystemVersion; // 40
+    public int minorOperatingSystemVersion;     // 42
+    public int majorImageVersion; // 44
+    public int minorImageVersion;     // 46
+    public int majorSubsystemVersion; // 48
+    public int minorSubsystemVersion;     // 4a
+    public long reserved1;     // 4c
+    public long sizeOfImage; // 50
+    public long sizeOfHeaders;     // 54
+    public long checkSum;     // 58
+    public int subsystem; // 5c
+    public int dllCharacteristics;     // 5e
+    public long sizeOfStackReserve; // 60
+    public long sizeOfStackCommit;     // 64
+    public long sizeOfHeapReserve; // 68
+    public long sizeOfHeapCommit;     // 6c
+    public long loaderFlags; // 70
+    public long numberOfRvaAndSizes; // 74
+    public long exportDirectory_VA; // 78
+    public long exportDirectory_Size; // 7c
+    public long importDirectory_VA; // 80
+    public long importDirectory_Size; // 84
+    public long resourceDirectory_VA; // 88
+    public long resourceDirectory_Size; // 8c
+    public long exceptionDirectory_VA; // 90
+    public long exceptionDirectory_Size; // 94
+    public long securityDirectory_VA; // 98
+    public long securityDirectory_Size; // 9c
+    public long baseRelocationTable_VA; // a0
+    public long baseRelocationTable_Size; // a4
+    public long debugDirectory_VA; // a8
+    public long debugDirectory_Size; // ac
+    public long architectureSpecificData_VA; // b0
+    public long architectureSpecificData_Size; // b4
+    public long rvaofGP_VA; // b8
+    public long rvaofGP_Size; // bc
+    public long tlsDirectory_VA; // c0
+    public long tlsDirectory_Size; // c4
+    public long loadConfigurationDirectory_VA; // c8
+    public long loadConfigurationDirectory_Size; // cc
+    public long boundImportDirectoryinheaders_VA; // d0
+    public long boundImportDirectoryinheaders_Size; // d4
+    public long importAddressTable_VA; // d8
+    public long importAddressTable_Size; // dc
+    public long delayLoadImportDescriptors_VA; // e0
+    public long delayLoadImportDescriptors_Size; // e4
+    public long comRuntimedescriptor_VA; // e8
+    public long comRuntimedescriptor_Size; // ec
 
     public Object clone() throws CloneNotSupportedException {
         return super.clone();
@@ -108,78 +108,78 @@ public class Header implements Cloneable, BinaryRecord {
         if (pemagic != 17744)
             throw new IllegalArgumentException("Expected 4 byte magic number 17444");
 
-        Machine = head.getShort(); //  4
-        NumberOfSections = head.getShort();     //  6
-        TimeDateStamp = head.getInt(); //  8
-        PointerToSymbolTable = head.getInt();     //  C
-        NumberOfSymbols = head.getInt(); // 10
-        SizeOfOptionalHeader = head.getShort();     // 14
-        Characteristics = head.getShort(); // 16
+        machine = head.getShort(); //  4
+        numberOfSections = head.getShort();     //  6
+        timeDateStamp = head.getInt(); //  8
+        pointerToSymbolTable = head.getInt();     //  C
+        numberOfSymbols = head.getInt(); // 10
+        sizeOfOptionalHeader = head.getShort();     // 14
+        characteristics = head.getShort(); // 16
 
         // Optional Header
-        Magic = head.getShort();     // 18
-        MajorLinkerVersion = head.get();     // 1a
-        MinorLinkerVersion = head.get(); // 1b
-        SizeOfCode = head.getInt();     // 1c
-        SizeOfInitializedData = head.getInt(); // 20
-        SizeOfUninitializedData = head.getInt();     // 24
-        AddressOfEntryPoint = head.getInt(); // 28
-        BaseOfCode = head.getInt();     // 2c
-        BaseOfData = head.getInt();    //    // NT additional fields. // 30
+        magic = head.getShort();     // 18
+        majorLinkerVersion = head.get();     // 1a
+        minorLinkerVersion = head.get(); // 1b
+        sizeOfCode = head.getInt();     // 1c
+        sizeOfInitializedData = head.getInt(); // 20
+        sizeOfUninitializedData = head.getInt();     // 24
+        addressOfEntryPoint = head.getInt(); // 28
+        baseOfCode = head.getInt();     // 2c
+        baseOfData = head.getInt();    //    // NT additional fields. // 30
 
         //
-        ImageBase = head.getInt();     // 34
-        SectionAlignment = head.getInt(); // 38
-        FileAlignment = head.getInt();     // 3c
-        MajorOperatingSystemVersion = head.getShort(); // 40
-        MinorOperatingSystemVersion = head.getShort();     // 42
-        MajorImageVersion = head.getShort(); // 44
-        MinorImageVersion = head.getShort();     // 46
-        MajorSubsystemVersion = head.getShort(); // 48
-        MinorSubsystemVersion = head.getShort();     // 4a
-        Reserved1 = head.getInt();     // 4c
-        SizeOfImage = head.getInt(); // 50
-        SizeOfHeaders = head.getInt();     // 54
-        CheckSum = head.getInt();     // 58
-        Subsystem = head.getShort(); // 5c
-        DllCharacteristics = head.getShort();     // 5e
-        SizeOfStackReserve = head.getInt(); // 60
-        SizeOfStackCommit = head.getInt();     // 64
-        SizeOfHeapReserve = head.getInt(); // 68
-        SizeOfHeapCommit = head.getInt();     // 6c
-        LoaderFlags = head.getInt(); // 70
-        NumberOfRvaAndSizes = head.getInt(); // 74
+        imageBase = head.getInt();     // 34
+        sectionAlignment = head.getInt(); // 38
+        fileAlignment = head.getInt();     // 3c
+        majorOperatingSystemVersion = head.getShort(); // 40
+        minorOperatingSystemVersion = head.getShort();     // 42
+        majorImageVersion = head.getShort(); // 44
+        minorImageVersion = head.getShort();     // 46
+        majorSubsystemVersion = head.getShort(); // 48
+        minorSubsystemVersion = head.getShort();     // 4a
+        reserved1 = head.getInt();     // 4c
+        sizeOfImage = head.getInt(); // 50
+        sizeOfHeaders = head.getInt();     // 54
+        checkSum = head.getInt();     // 58
+        subsystem = head.getShort(); // 5c
+        dllCharacteristics = head.getShort();     // 5e
+        sizeOfStackReserve = head.getInt(); // 60
+        sizeOfStackCommit = head.getInt();     // 64
+        sizeOfHeapReserve = head.getInt(); // 68
+        sizeOfHeapCommit = head.getInt();     // 6c
+        loaderFlags = head.getInt(); // 70
+        numberOfRvaAndSizes = head.getInt(); // 74
 
-        ExportDirectory_VA = head.getInt(); // 78
-        ExportDirectory_Size = head.getInt(); // 7c
-        ImportDirectory_VA = head.getInt(); // 80
-        ImportDirectory_Size = head.getInt(); // 84
-        ResourceDirectory_VA = head.getInt(); // 88
-        ResourceDirectory_Size = head.getInt(); // 8c
-        ExceptionDirectory_VA = head.getInt(); // 90
-        ExceptionDirectory_Size = head.getInt(); // 94
-        SecurityDirectory_VA = head.getInt(); // 98
-        SecurityDirectory_Size = head.getInt(); // 9c
-        BaseRelocationTable_VA = head.getInt(); // a0
-        BaseRelocationTable_Size = head.getInt(); // a4
-        DebugDirectory_VA = head.getInt(); // a8
-        DebugDirectory_Size = head.getInt(); // ac
-        ArchitectureSpecificData_VA = head.getInt(); // b0
-        ArchitectureSpecificData_Size = head.getInt(); // b4
-        RVAofGP_VA = head.getInt(); // b8
-        RVAofGP_Size = head.getInt(); // bc
-        TLSDirectory_VA = head.getInt(); // c0
-        TLSDirectory_Size = head.getInt(); // c4
-        LoadConfigurationDirectory_VA = head.getInt(); // c8
-        LoadConfigurationDirectory_Size = head.getInt(); // cc
-        BoundImportDirectoryinheaders_VA = head.getInt(); // d0
-        BoundImportDirectoryinheaders_Size = head.getInt(); // d4
-        ImportAddressTable_VA = head.getInt(); // d8
-        ImportAddressTable_Size = head.getInt(); // dc
-        DelayLoadImportDescriptors_VA = head.getInt(); // e0
-        DelayLoadImportDescriptors_Size = head.getInt(); // e4
-        COMRuntimedescriptor_VA = head.getInt(); // e8
-        COMRuntimedescriptor_Size = head.getInt(); // ec
+        exportDirectory_VA = head.getInt(); // 78
+        exportDirectory_Size = head.getInt(); // 7c
+        importDirectory_VA = head.getInt(); // 80
+        importDirectory_Size = head.getInt(); // 84
+        resourceDirectory_VA = head.getInt(); // 88
+        resourceDirectory_Size = head.getInt(); // 8c
+        exceptionDirectory_VA = head.getInt(); // 90
+        exceptionDirectory_Size = head.getInt(); // 94
+        securityDirectory_VA = head.getInt(); // 98
+        securityDirectory_Size = head.getInt(); // 9c
+        baseRelocationTable_VA = head.getInt(); // a0
+        baseRelocationTable_Size = head.getInt(); // a4
+        debugDirectory_VA = head.getInt(); // a8
+        debugDirectory_Size = head.getInt(); // ac
+        architectureSpecificData_VA = head.getInt(); // b0
+        architectureSpecificData_Size = head.getInt(); // b4
+        rvaofGP_VA = head.getInt(); // b8
+        rvaofGP_Size = head.getInt(); // bc
+        tlsDirectory_VA = head.getInt(); // c0
+        tlsDirectory_Size = head.getInt(); // c4
+        loadConfigurationDirectory_VA = head.getInt(); // c8
+        loadConfigurationDirectory_Size = head.getInt(); // cc
+        boundImportDirectoryinheaders_VA = head.getInt(); // d0
+        boundImportDirectoryinheaders_Size = head.getInt(); // d4
+        importAddressTable_VA = head.getInt(); // d8
+        importAddressTable_Size = head.getInt(); // dc
+        delayLoadImportDescriptors_VA = head.getInt(); // e0
+        delayLoadImportDescriptors_Size = head.getInt(); // e4
+        comRuntimedescriptor_VA = head.getInt(); // e8
+        comRuntimedescriptor_Size = head.getInt(); // ec
     }
 
     /**
@@ -189,195 +189,195 @@ public class Header implements Cloneable, BinaryRecord {
      */
     public void dump(PrintStream out) {
         out.println("PEHeader:");
-        out.println("int  Machine=" + Machine + " //  4");
-        out.println("int  NumberOfSections=" + NumberOfSections + "     //  6");
-        out.println("long   TimeDateStamp=" + TimeDateStamp + " //  8");
-        out.println("long   PointerToSymbolTable=" + PointerToSymbolTable
+        out.println("int  Machine=" + machine + " //  4");
+        out.println("int  NumberOfSections=" + numberOfSections + "     //  6");
+        out.println("long   TimeDateStamp=" + timeDateStamp + " //  8");
+        out.println("long   PointerToSymbolTable=" + pointerToSymbolTable
                 + "     //  C");
-        out.println("long   NumberOfSymbols=" + NumberOfSymbols + " // 10");
-        out.println("int  SizeOfOptionalHeader=" + SizeOfOptionalHeader
+        out.println("long   NumberOfSymbols=" + numberOfSymbols + " // 10");
+        out.println("int  SizeOfOptionalHeader=" + sizeOfOptionalHeader
                 + "     // 14");
-        out.println("int  Characteristics=" + Characteristics + " // 16");
+        out.println("int  Characteristics=" + characteristics + " // 16");
         // Optional Header
 
-        out.println("int    Magic=" + Magic + "     // 18");
-        out.println("short   MajorLinkerVersion=" + MajorLinkerVersion
+        out.println("int    Magic=" + magic + "     // 18");
+        out.println("short   MajorLinkerVersion=" + majorLinkerVersion
                 + "     // 1a");
-        out.println("short   MinorLinkerVersion=" + MinorLinkerVersion
+        out.println("short   MinorLinkerVersion=" + minorLinkerVersion
                 + " // 1b");
-        out.println("long   SizeOfCode=" + SizeOfCode + "     // 1c");
-        out.println("long   SizeOfInitializedData=" + SizeOfInitializedData
+        out.println("long   SizeOfCode=" + sizeOfCode + "     // 1c");
+        out.println("long   SizeOfInitializedData=" + sizeOfInitializedData
                 + " // 20");
-        out.println("long   SizeOfUninitializedData=" + SizeOfUninitializedData
+        out.println("long   SizeOfUninitializedData=" + sizeOfUninitializedData
                 + "     // 24");
-        out.println("long   AddressOfEntryPoint=" + AddressOfEntryPoint
+        out.println("long   AddressOfEntryPoint=" + addressOfEntryPoint
                 + " // 28");
-        out.println("long   BaseOfCode=" + BaseOfCode + "     // 2c");
-        out.println("long   BaseOfData=" + BaseOfData
+        out.println("long   BaseOfCode=" + baseOfCode + "     // 2c");
+        out.println("long   BaseOfData=" + baseOfData
                 + "    //    // NT additional fields. // 30");
         //
-        out.println("long   ImageBase=" + ImageBase + "     // 34");
-        out.println("long   SectionAlignment=" + SectionAlignment + " // 38");
-        out.println("long   FileAlignment=" + FileAlignment + "     // 3c");
+        out.println("long   ImageBase=" + imageBase + "     // 34");
+        out.println("long   SectionAlignment=" + sectionAlignment + " // 38");
+        out.println("long   FileAlignment=" + fileAlignment + "     // 3c");
         out.println("int    MajorOperatingSystemVersion="
-                + MajorOperatingSystemVersion + " // 40");
+                + majorOperatingSystemVersion + " // 40");
         out.println("int    MinorOperatingSystemVersion="
-                + MinorOperatingSystemVersion + "     // 42");
-        out.println("int    MajorImageVersion=" + MajorImageVersion + " // 44");
-        out.println("int    MinorImageVersion=" + MinorImageVersion
+                + minorOperatingSystemVersion + "     // 42");
+        out.println("int    MajorImageVersion=" + majorImageVersion + " // 44");
+        out.println("int    MinorImageVersion=" + minorImageVersion
                 + "     // 46");
-        out.println("int    MajorSubsystemVersion=" + MajorSubsystemVersion
+        out.println("int    MajorSubsystemVersion=" + majorSubsystemVersion
                 + " // 48");
-        out.println("int    MinorSubsystemVersion=" + MinorSubsystemVersion
+        out.println("int    MinorSubsystemVersion=" + minorSubsystemVersion
                 + "     // 4a");
-        out.println("long   Reserved1=" + Reserved1 + "     // 4c");
-        out.println("long   SizeOfImage=" + SizeOfImage + " // 50");
-        out.println("long   SizeOfHeaders=" + SizeOfHeaders + "     // 54");
-        out.println("long   CheckSum=" + CheckSum + "     // 58");
-        out.println("int    Subsystem=" + Subsystem + " // 5c");
-        out.println("int    DllCharacteristics=" + DllCharacteristics
+        out.println("long   Reserved1=" + reserved1 + "     // 4c");
+        out.println("long   SizeOfImage=" + sizeOfImage + " // 50");
+        out.println("long   SizeOfHeaders=" + sizeOfHeaders + "     // 54");
+        out.println("long   CheckSum=" + checkSum + "     // 58");
+        out.println("int    Subsystem=" + subsystem + " // 5c");
+        out.println("int    DllCharacteristics=" + dllCharacteristics
                 + "     // 5e");
-        out.println("long   SizeOfStackReserve=" + SizeOfStackReserve + " // 60");
-        out.println("long   SizeOfStackCommit=" + SizeOfStackCommit
+        out.println("long   SizeOfStackReserve=" + sizeOfStackReserve + " // 60");
+        out.println("long   SizeOfStackCommit=" + sizeOfStackCommit
                 + "     // 64");
-        out.println("long   SizeOfHeapReserve=" + SizeOfHeapReserve + " // 68");
-        out.println("long   SizeOfHeapCommit=" + SizeOfHeapCommit + "     // 6c");
-        out.println("long   LoaderFlags=" + LoaderFlags + " // 70");
-        out.println("long   NumberOfRvaAndSizes=" + NumberOfRvaAndSizes
+        out.println("long   SizeOfHeapReserve=" + sizeOfHeapReserve + " // 68");
+        out.println("long   SizeOfHeapCommit=" + sizeOfHeapCommit + "     // 6c");
+        out.println("long   LoaderFlags=" + loaderFlags + " // 70");
+        out.println("long   NumberOfRvaAndSizes=" + numberOfRvaAndSizes
                 + " // 74");
 
-        out.println("long ExportDirectory_VA=" + ExportDirectory_VA + " // 78");
-        out.println("long ExportDirectory_Size=" + ExportDirectory_Size
+        out.println("long ExportDirectory_VA=" + exportDirectory_VA + " // 78");
+        out.println("long ExportDirectory_Size=" + exportDirectory_Size
                 + " // 7c");
-        out.println("long ImportDirectory_VA=" + ImportDirectory_VA + " // 80");
-        out.println("long ImportDirectory_Size=" + ImportDirectory_Size
+        out.println("long ImportDirectory_VA=" + importDirectory_VA + " // 80");
+        out.println("long ImportDirectory_Size=" + importDirectory_Size
                 + " // 84");
-        out.println("long ResourceDirectory_VA=" + ResourceDirectory_VA
+        out.println("long ResourceDirectory_VA=" + resourceDirectory_VA
                 + " // 88");
-        out.println("long ResourceDirectory_Size=" + ResourceDirectory_Size
+        out.println("long ResourceDirectory_Size=" + resourceDirectory_Size
                 + " // 8c");
-        out.println("long ExceptionDirectory_VA=" + ExceptionDirectory_VA
+        out.println("long ExceptionDirectory_VA=" + exceptionDirectory_VA
                 + " // 90");
-        out.println("long ExceptionDirectory_Size=" + ExceptionDirectory_Size
+        out.println("long ExceptionDirectory_Size=" + exceptionDirectory_Size
                 + " // 94");
-        out.println("long SecurityDirectory_VA=" + SecurityDirectory_VA
+        out.println("long SecurityDirectory_VA=" + securityDirectory_VA
                 + " // 98");
-        out.println("long SecurityDirectory_Size=" + SecurityDirectory_Size
+        out.println("long SecurityDirectory_Size=" + securityDirectory_Size
                 + " // 9c");
-        out.println("long BaseRelocationTable_VA=" + BaseRelocationTable_VA
+        out.println("long BaseRelocationTable_VA=" + baseRelocationTable_VA
                 + " // a0");
-        out.println("long BaseRelocationTable_Size=" + BaseRelocationTable_Size
+        out.println("long BaseRelocationTable_Size=" + baseRelocationTable_Size
                 + " // a4");
-        out.println("long DebugDirectory_VA=" + DebugDirectory_VA + " // a8");
-        out.println("long DebugDirectory_Size=" + DebugDirectory_Size + " // ac");
+        out.println("long DebugDirectory_VA=" + debugDirectory_VA + " // a8");
+        out.println("long DebugDirectory_Size=" + debugDirectory_Size + " // ac");
         out.println("long ArchitectureSpecificData_VA="
-                + ArchitectureSpecificData_VA + " // b0");
+                + architectureSpecificData_VA + " // b0");
         out.println("long ArchitectureSpecificData_Size="
-                + ArchitectureSpecificData_Size + " // b4");
-        out.println("long RVAofGP_VA=" + RVAofGP_VA + " // b8");
-        out.println("long RVAofGP_Size=" + RVAofGP_Size + " // bc");
-        out.println("long TLSDirectory_VA=" + TLSDirectory_VA + " // c0");
-        out.println("long TLSDirectory_Size=" + TLSDirectory_Size + " // c4");
+                + architectureSpecificData_Size + " // b4");
+        out.println("long RVAofGP_VA=" + rvaofGP_VA + " // b8");
+        out.println("long RVAofGP_Size=" + rvaofGP_Size + " // bc");
+        out.println("long TLSDirectory_VA=" + tlsDirectory_VA + " // c0");
+        out.println("long TLSDirectory_Size=" + tlsDirectory_Size + " // c4");
         out.println("long LoadConfigurationDirectory_VA="
-                + LoadConfigurationDirectory_VA + " // c8");
+                + loadConfigurationDirectory_VA + " // c8");
         out.println("long LoadConfigurationDirectory_Size="
-                + LoadConfigurationDirectory_Size + " // cc");
+                + loadConfigurationDirectory_Size + " // cc");
         out.println("long BoundImportDirectoryinheaders_VA="
-                + BoundImportDirectoryinheaders_VA + " // d0");
+                + boundImportDirectoryinheaders_VA + " // d0");
         out.println("long BoundImportDirectoryinheaders_Size="
-                + BoundImportDirectoryinheaders_Size + " // d4");
-        out.println("long ImportAddressTable_VA=" + ImportAddressTable_VA
+                + boundImportDirectoryinheaders_Size + " // d4");
+        out.println("long ImportAddressTable_VA=" + importAddressTable_VA
                 + " // d8");
-        out.println("long ImportAddressTable_Size=" + ImportAddressTable_Size
+        out.println("long ImportAddressTable_Size=" + importAddressTable_Size
                 + " // dc");
         out.println("long DelayLoadImportDescriptors_VA="
-                + DelayLoadImportDescriptors_VA + " // e0");
+                + delayLoadImportDescriptors_VA + " // e0");
         out.println("long DelayLoadImportDescriptors_Size="
-                + DelayLoadImportDescriptors_Size + " // e4");
-        out.println("long COMRuntimedescriptor_VA=" + COMRuntimedescriptor_VA
+                + delayLoadImportDescriptors_Size + " // e4");
+        out.println("long COMRuntimedescriptor_VA=" + comRuntimedescriptor_VA
                 + " // e8");
         out.println("long COMRuntimedescriptor_Size="
-                + COMRuntimedescriptor_Size + " // ec");
+                + comRuntimedescriptor_Size + " // ec");
     }
 
     public ByteBuffer getData() {
-        ByteBuffer head = ByteBuffer.allocate(16 + this.SizeOfOptionalHeader);
+        ByteBuffer head = ByteBuffer.allocate(16 + this.sizeOfOptionalHeader);
         head.order(ByteOrder.LITTLE_ENDIAN);
         head.position(0);
 
         head.putInt(17744);
 
-        head.putShort((short) Machine); //  4
-        head.putShort((short) NumberOfSections);     //  6
-        head.putInt((int) TimeDateStamp); //  8
-        head.putInt((int) PointerToSymbolTable);     //  C
-        head.putInt((int) NumberOfSymbols); // 10
-        head.putShort((short) SizeOfOptionalHeader);     // 14
-        head.putShort((short) Characteristics); // 16
+        head.putShort((short) machine); //  4
+        head.putShort((short) numberOfSections);     //  6
+        head.putInt((int) timeDateStamp); //  8
+        head.putInt((int) pointerToSymbolTable);     //  C
+        head.putInt((int) numberOfSymbols); // 10
+        head.putShort((short) sizeOfOptionalHeader);     // 14
+        head.putShort((short) characteristics); // 16
         // Optional Header
 
-        head.putShort((short) Magic);     // 18
-        head.put((byte) MajorLinkerVersion);     // 1a
-        head.put((byte) MinorLinkerVersion); // 1b
-        head.putInt((int) SizeOfCode);     // 1c
-        head.putInt((int) SizeOfInitializedData); // 20
-        head.putInt((int) SizeOfUninitializedData);     // 24
-        head.putInt((int) AddressOfEntryPoint); // 28
-        head.putInt((int) BaseOfCode);     // 2c
-        head.putInt((int) BaseOfData);    //    // NT additional fields. // 30
+        head.putShort((short) magic);     // 18
+        head.put((byte) majorLinkerVersion);     // 1a
+        head.put((byte) minorLinkerVersion); // 1b
+        head.putInt((int) sizeOfCode);     // 1c
+        head.putInt((int) sizeOfInitializedData); // 20
+        head.putInt((int) sizeOfUninitializedData);     // 24
+        head.putInt((int) addressOfEntryPoint); // 28
+        head.putInt((int) baseOfCode);     // 2c
+        head.putInt((int) baseOfData);    //    // NT additional fields. // 30
         //
-        head.putInt((int) ImageBase);     // 34
-        head.putInt((int) SectionAlignment); // 38
-        head.putInt((int) FileAlignment);     // 3c
-        head.putShort((short) MajorOperatingSystemVersion); // 40
-        head.putShort((short) MinorOperatingSystemVersion);     // 42
-        head.putShort((short) MajorImageVersion); // 44
-        head.putShort((short) MinorImageVersion);     // 46
-        head.putShort((short) MajorSubsystemVersion); // 48
-        head.putShort((short) MinorSubsystemVersion);     // 4a
-        head.putInt((int) Reserved1);     // 4c
-        head.putInt((int) SizeOfImage); // 50
-        head.putInt((int) SizeOfHeaders);     // 54
-        head.putInt((int) CheckSum);     // 58
-        head.putShort((short) Subsystem); // 5c
-        head.putShort((short) DllCharacteristics);     // 5e
-        head.putInt((int) SizeOfStackReserve); // 60
-        head.putInt((int) SizeOfStackCommit);     // 64
-        head.putInt((int) SizeOfHeapReserve); // 68
-        head.putInt((int) SizeOfHeapCommit);     // 6c
-        head.putInt((int) LoaderFlags); // 70
-        head.putInt((int) NumberOfRvaAndSizes); // 74
+        head.putInt((int) imageBase);     // 34
+        head.putInt((int) sectionAlignment); // 38
+        head.putInt((int) fileAlignment);     // 3c
+        head.putShort((short) majorOperatingSystemVersion); // 40
+        head.putShort((short) minorOperatingSystemVersion);     // 42
+        head.putShort((short) majorImageVersion); // 44
+        head.putShort((short) minorImageVersion);     // 46
+        head.putShort((short) majorSubsystemVersion); // 48
+        head.putShort((short) minorSubsystemVersion);     // 4a
+        head.putInt((int) reserved1);     // 4c
+        head.putInt((int) sizeOfImage); // 50
+        head.putInt((int) sizeOfHeaders);     // 54
+        head.putInt((int) checkSum);     // 58
+        head.putShort((short) subsystem); // 5c
+        head.putShort((short) dllCharacteristics);     // 5e
+        head.putInt((int) sizeOfStackReserve); // 60
+        head.putInt((int) sizeOfStackCommit);     // 64
+        head.putInt((int) sizeOfHeapReserve); // 68
+        head.putInt((int) sizeOfHeapCommit);     // 6c
+        head.putInt((int) loaderFlags); // 70
+        head.putInt((int) numberOfRvaAndSizes); // 74
 
-        head.putInt((int) ExportDirectory_VA); // 78
-        head.putInt((int) ExportDirectory_Size); // 7c
-        head.putInt((int) ImportDirectory_VA); // 80
-        head.putInt((int) ImportDirectory_Size); // 84
-        head.putInt((int) ResourceDirectory_VA); // 88
-        head.putInt((int) ResourceDirectory_Size); // 8c
-        head.putInt((int) ExceptionDirectory_VA); // 90
-        head.putInt((int) ExceptionDirectory_Size); // 94
-        head.putInt((int) SecurityDirectory_VA); // 98
-        head.putInt((int) SecurityDirectory_Size); // 9c
-        head.putInt((int) BaseRelocationTable_VA); // a0
-        head.putInt((int) BaseRelocationTable_Size); // a4
-        head.putInt((int) DebugDirectory_VA); // a8
-        head.putInt((int) DebugDirectory_Size); // ac
-        head.putInt((int) ArchitectureSpecificData_VA); // b0
-        head.putInt((int) ArchitectureSpecificData_Size); // b4
-        head.putInt((int) RVAofGP_VA); // b8
-        head.putInt((int) RVAofGP_Size); // bc
-        head.putInt((int) TLSDirectory_VA); // c0
-        head.putInt((int) TLSDirectory_Size); // c4
-        head.putInt((int) LoadConfigurationDirectory_VA); // c8
-        head.putInt((int) LoadConfigurationDirectory_Size); // cc
-        head.putInt((int) BoundImportDirectoryinheaders_VA); // d0
-        head.putInt((int) BoundImportDirectoryinheaders_Size); // d4
-        head.putInt((int) ImportAddressTable_VA); // d8
-        head.putInt((int) ImportAddressTable_Size); // dc
-        head.putInt((int) DelayLoadImportDescriptors_VA); // e0
-        head.putInt((int) DelayLoadImportDescriptors_Size); // e4
-        head.putInt((int) COMRuntimedescriptor_VA); // e8
-        head.putInt((int) COMRuntimedescriptor_Size); // ec
+        head.putInt((int) exportDirectory_VA); // 78
+        head.putInt((int) exportDirectory_Size); // 7c
+        head.putInt((int) importDirectory_VA); // 80
+        head.putInt((int) importDirectory_Size); // 84
+        head.putInt((int) resourceDirectory_VA); // 88
+        head.putInt((int) resourceDirectory_Size); // 8c
+        head.putInt((int) exceptionDirectory_VA); // 90
+        head.putInt((int) exceptionDirectory_Size); // 94
+        head.putInt((int) securityDirectory_VA); // 98
+        head.putInt((int) securityDirectory_Size); // 9c
+        head.putInt((int) baseRelocationTable_VA); // a0
+        head.putInt((int) baseRelocationTable_Size); // a4
+        head.putInt((int) debugDirectory_VA); // a8
+        head.putInt((int) debugDirectory_Size); // ac
+        head.putInt((int) architectureSpecificData_VA); // b0
+        head.putInt((int) architectureSpecificData_Size); // b4
+        head.putInt((int) rvaofGP_VA); // b8
+        head.putInt((int) rvaofGP_Size); // bc
+        head.putInt((int) tlsDirectory_VA); // c0
+        head.putInt((int) tlsDirectory_Size); // c4
+        head.putInt((int) loadConfigurationDirectory_VA); // c8
+        head.putInt((int) loadConfigurationDirectory_Size); // cc
+        head.putInt((int) boundImportDirectoryinheaders_VA); // d0
+        head.putInt((int) boundImportDirectoryinheaders_Size); // d4
+        head.putInt((int) importAddressTable_VA); // d8
+        head.putInt((int) importAddressTable_Size); // dc
+        head.putInt((int) delayLoadImportDescriptors_VA); // e0
+        head.putInt((int) delayLoadImportDescriptors_Size); // e4
+        head.putInt((int) comRuntimedescriptor_VA); // e8
+        head.putInt((int) comRuntimedescriptor_Size); // ec
 
         head.position(0);
         return head;
@@ -385,88 +385,88 @@ public class Header implements Cloneable, BinaryRecord {
 
     public void updateVAAndSize(List<SectionHeader> oldsections,
             List<SectionHeader> newsections) {
-        long codebase = findNewVA(this.BaseOfCode, oldsections, newsections);
-        long codesize = findNewSize(this.BaseOfCode, oldsections, newsections);
-        //	System.out.println("New BaseOfCode=" + codebase + " (size=" + codesize + ")");
-        this.BaseOfCode = codebase;
-        this.SizeOfCode = codesize;
+        long codebase = findNewVA(this.baseOfCode, oldsections, newsections);
+        long codesize = findNewSize(this.baseOfCode, oldsections, newsections);
+        //	System.out.println("New baseOfCode=" + codebase + " (size=" + codesize + ")");
+        this.baseOfCode = codebase;
+        this.sizeOfCode = codesize;
 
-        this.AddressOfEntryPoint = findNewVA(this.AddressOfEntryPoint,
+        this.addressOfEntryPoint = findNewVA(this.addressOfEntryPoint,
                 oldsections, newsections);
 
-        long database = findNewVA(this.BaseOfData, oldsections, newsections);
-        long datasize = findNewSize(this.BaseOfData, oldsections, newsections);
-        //	System.out.println("New BaseOfData=" + database + " (size=" + datasize + ")");
-        this.BaseOfData = database;
+        long database = findNewVA(this.baseOfData, oldsections, newsections);
+        long datasize = findNewSize(this.baseOfData, oldsections, newsections);
+        //	System.out.println("New baseOfData=" + database + " (size=" + datasize + ")");
+        this.baseOfData = database;
 
         long imagesize = 0;
         for (int i = 0; i < newsections.size(); i++) {
             SectionHeader sect = newsections.get(i);
-            long curmax = sect.VirtualAddress + sect.VirtualSize;
+            long curmax = sect.virtualAddress + sect.virtualSize;
             if (curmax > imagesize) {
                 imagesize = curmax;
             }
         }
-        this.SizeOfImage = imagesize;
+        this.sizeOfImage = imagesize;
 
-        //	this.SizeOfInitializedData = datasize;
+        //	this.sizeOfInitializedData = datasize;
 
-        ExportDirectory_Size = findNewSize(ExportDirectory_VA, oldsections,
+        exportDirectory_Size = findNewSize(exportDirectory_VA, oldsections,
                 newsections);
-        ExportDirectory_VA = findNewVA(ExportDirectory_VA, oldsections,
+        exportDirectory_VA = findNewVA(exportDirectory_VA, oldsections,
                 newsections);
-        ImportDirectory_Size = findNewSize(ImportDirectory_VA, oldsections,
+        importDirectory_Size = findNewSize(importDirectory_VA, oldsections,
                 newsections);
-        ImportDirectory_VA = findNewVA(ImportDirectory_VA, oldsections,
+        importDirectory_VA = findNewVA(importDirectory_VA, oldsections,
                 newsections);
-        ResourceDirectory_Size = findNewSize(ResourceDirectory_VA, oldsections,
+        resourceDirectory_Size = findNewSize(resourceDirectory_VA, oldsections,
                 newsections);
-        ResourceDirectory_VA = findNewVA(ResourceDirectory_VA, oldsections,
+        resourceDirectory_VA = findNewVA(resourceDirectory_VA, oldsections,
                 newsections);
-        ExceptionDirectory_Size = findNewSize(ExceptionDirectory_VA, oldsections,
+        exceptionDirectory_Size = findNewSize(exceptionDirectory_VA, oldsections,
                 newsections);
-        ExceptionDirectory_VA = findNewVA(ExceptionDirectory_VA, oldsections,
+        exceptionDirectory_VA = findNewVA(exceptionDirectory_VA, oldsections,
                 newsections);
-        SecurityDirectory_Size = findNewSize(SecurityDirectory_VA, oldsections,
+        securityDirectory_Size = findNewSize(securityDirectory_VA, oldsections,
                 newsections);
-        SecurityDirectory_VA = findNewVA(SecurityDirectory_VA, oldsections,
+        securityDirectory_VA = findNewVA(securityDirectory_VA, oldsections,
                 newsections);
-        BaseRelocationTable_Size = findNewSize(BaseRelocationTable_VA,
+        baseRelocationTable_Size = findNewSize(baseRelocationTable_VA,
                 oldsections, newsections);
-        BaseRelocationTable_VA = findNewVA(BaseRelocationTable_VA, oldsections,
+        baseRelocationTable_VA = findNewVA(baseRelocationTable_VA, oldsections,
                 newsections);
-        DebugDirectory_Size = findNewSize(DebugDirectory_VA, oldsections,
+        debugDirectory_Size = findNewSize(debugDirectory_VA, oldsections,
                 newsections);
-        DebugDirectory_VA = findNewVA(DebugDirectory_VA, oldsections,
+        debugDirectory_VA = findNewVA(debugDirectory_VA, oldsections,
                 newsections);
-        ArchitectureSpecificData_Size = findNewSize(ArchitectureSpecificData_VA,
+        architectureSpecificData_Size = findNewSize(architectureSpecificData_VA,
                 oldsections, newsections);
-        ArchitectureSpecificData_VA = findNewVA(ArchitectureSpecificData_VA,
+        architectureSpecificData_VA = findNewVA(architectureSpecificData_VA,
                 oldsections, newsections);
-        RVAofGP_Size = findNewSize(RVAofGP_VA, oldsections, newsections);
-        RVAofGP_VA = findNewVA(RVAofGP_VA, oldsections, newsections);
-        TLSDirectory_Size = findNewSize(TLSDirectory_VA, oldsections,
+        rvaofGP_Size = findNewSize(rvaofGP_VA, oldsections, newsections);
+        rvaofGP_VA = findNewVA(rvaofGP_VA, oldsections, newsections);
+        tlsDirectory_Size = findNewSize(tlsDirectory_VA, oldsections,
                 newsections);
-        TLSDirectory_VA = findNewVA(TLSDirectory_VA, oldsections, newsections);
-        LoadConfigurationDirectory_Size = findNewSize(
-                LoadConfigurationDirectory_VA, oldsections, newsections);
-        LoadConfigurationDirectory_VA = findNewVA(LoadConfigurationDirectory_VA,
+        tlsDirectory_VA = findNewVA(tlsDirectory_VA, oldsections, newsections);
+        loadConfigurationDirectory_Size = findNewSize(
+                loadConfigurationDirectory_VA, oldsections, newsections);
+        loadConfigurationDirectory_VA = findNewVA(loadConfigurationDirectory_VA,
                 oldsections, newsections);
-        BoundImportDirectoryinheaders_Size = findNewSize(
-                BoundImportDirectoryinheaders_VA, oldsections, newsections);
-        BoundImportDirectoryinheaders_VA = findNewVA(
-                BoundImportDirectoryinheaders_VA, oldsections, newsections);
-        ImportAddressTable_Size = findNewSize(ImportAddressTable_VA, oldsections,
+        boundImportDirectoryinheaders_Size = findNewSize(
+                boundImportDirectoryinheaders_VA, oldsections, newsections);
+        boundImportDirectoryinheaders_VA = findNewVA(
+                boundImportDirectoryinheaders_VA, oldsections, newsections);
+        importAddressTable_Size = findNewSize(importAddressTable_VA, oldsections,
                 newsections);
-        ImportAddressTable_VA = findNewVA(ImportAddressTable_VA, oldsections,
+        importAddressTable_VA = findNewVA(importAddressTable_VA, oldsections,
                 newsections);
-        DelayLoadImportDescriptors_Size = findNewSize(
-                DelayLoadImportDescriptors_VA, oldsections, newsections);
-        DelayLoadImportDescriptors_VA = findNewVA(DelayLoadImportDescriptors_VA,
+        delayLoadImportDescriptors_Size = findNewSize(
+                delayLoadImportDescriptors_VA, oldsections, newsections);
+        delayLoadImportDescriptors_VA = findNewVA(delayLoadImportDescriptors_VA,
                 oldsections, newsections);
-        COMRuntimedescriptor_Size = findNewSize(COMRuntimedescriptor_VA,
+        comRuntimedescriptor_Size = findNewSize(comRuntimedescriptor_VA,
                 oldsections, newsections);
-        COMRuntimedescriptor_VA = findNewVA(COMRuntimedescriptor_VA, oldsections,
+        comRuntimedescriptor_VA = findNewVA(comRuntimedescriptor_VA, oldsections,
                 newsections);
     }
 
@@ -474,17 +474,17 @@ public class Header implements Cloneable, BinaryRecord {
             List<SectionHeader> newsections) {
         for (int i = 0; i < oldsections.size(); i++) {
             SectionHeader sect = oldsections.get(i);
-            if (sect.VirtualAddress == current) {
+            if (sect.virtualAddress == current) {
                 SectionHeader newsect = newsections.get(i);
 
-                //			System.out.println("Translation VA found for " + current + " = " + i + " (" +newsect.VirtualAddress + ")=" + newsect.getName());
-                return newsect.VirtualAddress;
-            } else if ((current > sect.VirtualAddress) && (current < (sect.VirtualAddress
-                    + sect.VirtualSize))) {
-                long diff = current - sect.VirtualAddress;
+                //			System.out.println("Translation VA found for " + current + " = " + i + " (" +newsect.virtualAddress + ")=" + newsect.getName());
+                return newsect.virtualAddress;
+            } else if ((current > sect.virtualAddress) && (current < (sect.virtualAddress
+                    + sect.virtualSize))) {
+                long diff = current - sect.virtualAddress;
                 SectionHeader newsect = newsections.get(i);
-                //			System.out.println("Translation VA found INSIDE " + current + " = " + i + " (" +newsect.VirtualAddress + ")=" + newsect.getName());
-                return newsect.VirtualAddress + diff;
+                //			System.out.println("Translation VA found INSIDE " + current + " = " + i + " (" +newsect.virtualAddress + ")=" + newsect.getName());
+                return newsect.virtualAddress + diff;
             }
         }
         return 0;
@@ -494,11 +494,11 @@ public class Header implements Cloneable, BinaryRecord {
             List<SectionHeader> newsections) {
         for (int i = 0; i < oldsections.size(); i++) {
             SectionHeader sect = oldsections.get(i);
-            if (sect.VirtualAddress == current) {
+            if (sect.virtualAddress == current) {
                 SectionHeader newsect = newsections.get(i);
-                //			System.out.println("Translation Size found for " + current + " = " + i + " (" +newsect.VirtualAddress + ")=" + newsect.getName());
-                //			System.out.println("         Old size " + sect.VirtualSize + " vs new size " + newsect.VirtualSize);
-                return newsect.VirtualSize;
+                //			System.out.println("Translation Size found for " + current + " = " + i + " (" +newsect.virtualAddress + ")=" + newsect.getName());
+                //			System.out.println("         Old size " + sect.virtualSize + " vs new size " + newsect.virtualSize);
+                return newsect.virtualSize;
             }
         }
         return 0;

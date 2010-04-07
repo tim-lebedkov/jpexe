@@ -94,9 +94,9 @@ public class PEFile {
         header = new Header();
         header.setData(mbb);
 
-        int seccount = header.NumberOfSections;
+        int seccount = header.numberOfSections;
         int headoffset = oldMSDOSHeader.e_lfanew;
-        long offset = headoffset + (header.NumberOfRvaAndSizes * 8) + 24 + 96;
+        long offset = headoffset + (header.numberOfRvaAndSizes * 8) + 24 + 96;
 
         for (int i = 0; i < seccount; i++) {
             SectionHeader sect = new SectionHeader(offset);
@@ -107,13 +107,13 @@ public class PEFile {
         }
 
         /*ByteBuffer resbuf = null;
-        long resourceoffset = header.ResourceDirectory_VA;
+        long resourceoffset = header.resourceDirectory_VA;
         for (int i = 0; i < seccount; i++) {
             SectionHeader sect = sections.get(i);
-            if (sect.VirtualAddress == resourceoffset) {
+            if (sect.virtualAddress == resourceoffset) {
                 // TODO
                 ResourceDirectory prd = new ResourceDirectory(null);
-                // TODO resbuf = prd.buildResource(sect.VirtualAddress);
+                // TODO resbuf = prd.buildResource(sect.virtualAddress);
                 break;
             }
         } todo */
@@ -133,13 +133,13 @@ public class PEFile {
             return resourceDir;
         }
 
-        long resourceoffset = header.ResourceDirectory_VA;
+        long resourceoffset = header.resourceDirectory_VA;
         for (int i = 0; i < sections.size(); i++) {
             SectionHeader sect = sections.get(i);
-            if (sect.VirtualAddress == resourceoffset) {
+            if (sect.virtualAddress == resourceoffset) {
                 resourceDir = new ResourceDirectory();
-                mbb.position((int) sect.PointerToRawData);
-                // TODO resourceDir.setData(mbb);
+                mbb.position((int) sect.pointerToRawData);
+                resourceDir.setData(mbb);
                 return resourceDir;
             }
         }
@@ -150,19 +150,19 @@ public class PEFile {
     /**
      * Adds a new section
      *
-     * @param s new section. VirtualAddress will be set automatically.
+     * @param s new section. virtualAddress will be set automatically.
      */
     public void addSectionHeader(SectionHeader s) {
         long va = -1;
         for (SectionHeader s2: this.sections) {
-            if (s2.VirtualAddress > va) {
-                va = s2.VirtualAddress;
-                s.VirtualAddress = s2.VirtualAddress + s2.VirtualSize;
+            if (s2.virtualAddress > va) {
+                va = s2.virtualAddress;
+                s.virtualAddress = s2.virtualAddress + s2.virtualSize;
             }
         }
 
         this.sections.add(s);
-        this.header.NumberOfSections = this.sections.size();
+        this.header.numberOfSections = this.sections.size();
     }
 
     public void dumpTo(File destination) throws IOException,
@@ -198,7 +198,7 @@ public class PEFile {
         // After the header, there are all the section
         // headers...
         long offset = this.oldMSDOSHeader.e_lfanew +
-                (header.NumberOfRvaAndSizes * 8)
+                (header.numberOfRvaAndSizes * 8)
                 + 24 + 96;
         out.position(offset);
         for (int i = 0; i < shs.size(); i++) {
@@ -214,29 +214,29 @@ public class PEFile {
         offset = 1024;
 
         long virtualAddress = offset;
-        if ((virtualAddress % this.header.SectionAlignment) > 0) {
-                virtualAddress += this.header.SectionAlignment -
-                (virtualAddress % this.header.SectionAlignment);
+        if ((virtualAddress % this.header.sectionAlignment) > 0) {
+                virtualAddress += this.header.sectionAlignment -
+                (virtualAddress % this.header.sectionAlignment);
         }
 
         // Dump each section data
-        long resourceoffset = header.ResourceDirectory_VA;
+        long resourceoffset = header.resourceDirectory_VA;
         for (int i = 0; i < shs.size(); i++) {
             SectionHeader sect = shs.get(i);
-            if (resourceoffset == sect.VirtualAddress) {
-                // System.out.println("Dumping RES section " + i + " at " + offset + " from " + sect.PointerToRawData + " (VA=" + virtualAddress + ")");
+            if (resourceoffset == sect.virtualAddress) {
+                // System.out.println("Dumping RES section " + i + " at " + offset + " from " + sect.pointerToRawData + " (VA=" + virtualAddress + ")");
                 out.position(offset);
                 long sectoffset = offset;
                 ResourceDirectory prd = this.getResourceDirectory();
                 ByteBuffer resbuf = null; // TODO prd.buildResource(
-                        // TODO sect.VirtualAddress);
+                        // TODO sect.virtualAddress);
                 resbuf.position(0);
 
                 out.write(resbuf);
                 offset += resbuf.capacity();
-                long rem = offset % this.header.FileAlignment;
+                long rem = offset % this.header.fileAlignment;
                 if (rem != 0) {
-                    offset += this.header.FileAlignment - rem;
+                    offset += this.header.fileAlignment - rem;
                 }
 
                 if (out.size() + 1 < offset) {
@@ -245,72 +245,72 @@ public class PEFile {
                 }
 
                 long virtualSize = resbuf.capacity();
-                if ((virtualSize % this.header.FileAlignment) > 0) {
-                    virtualSize += this.header.SectionAlignment -
-                            (virtualSize % this.header.SectionAlignment);
+                if ((virtualSize % this.header.fileAlignment) > 0) {
+                    virtualSize += this.header.sectionAlignment -
+                            (virtualSize % this.header.sectionAlignment);
                 }
 
-                sect.PointerToRawData = sectoffset;
-                sect.SizeOfRawData = resbuf.capacity();
-                if ((sect.SizeOfRawData % this.header.FileAlignment) > 0) {
-                    sect.SizeOfRawData += (this.header.FileAlignment -
-                            (sect.SizeOfRawData
-                            % this.header.FileAlignment));
+                sect.pointerToRawData = sectoffset;
+                sect.sizeOfRawData = resbuf.capacity();
+                if ((sect.sizeOfRawData % this.header.fileAlignment) > 0) {
+                    sect.sizeOfRawData += (this.header.fileAlignment -
+                            (sect.sizeOfRawData
+                            % this.header.fileAlignment));
                 }
-                sect.VirtualAddress = virtualAddress;
-                sect.VirtualSize = virtualSize;
+                sect.virtualAddress = virtualAddress;
+                sect.virtualSize = virtualSize;
 
                 virtualAddress += virtualSize;
-            } else if (sect.PointerToRawData > 0) {
-                //			System.out.println("Dumping section " + i + "/" + sect.getName() + " at " + offset + " from " + sect.PointerToRawData + " (VA=" + virtualAddress + ")");
+            } else if (sect.pointerToRawData > 0) {
+                //			System.out.println("Dumping section " + i + "/" + sect.getName() + " at " + offset + " from " + sect.pointerToRawData + " (VA=" + virtualAddress + ")");
                 out.position(offset);
-                this.channel.position(sect.PointerToRawData);
+                this.channel.position(sect.pointerToRawData);
                 long sectoffset = offset;
 
-                out.position(offset + sect.SizeOfRawData);
+                out.position(offset + sect.sizeOfRawData);
                 ByteBuffer padder = ByteBuffer.allocate(1);
-                out.write(padder, offset + sect.SizeOfRawData - 1);
+                out.write(padder, offset + sect.sizeOfRawData - 1);
 
                 long outted = out.transferFrom(this.channel, offset,
-                        sect.SizeOfRawData);
-                offset += sect.SizeOfRawData;
+                        sect.sizeOfRawData);
+                offset += sect.sizeOfRawData;
 
-                long rem = offset % this.header.FileAlignment;
+                long rem = offset % this.header.fileAlignment;
                 if (rem != 0) {
-                    offset += this.header.FileAlignment - rem;
+                    offset += this.header.fileAlignment - rem;
                 }
 
-                // 			long virtualSize = sect.SizeOfRawData;
-                // 			if ((virtualSize % peheader.SectionAlignment)>0)
-                // 			    virtualSize += peheader.SectionAlignment - (virtualSize%peheader.SectionAlignment);
+                // 			long virtualSize = sect.sizeOfRawData;
+                // 			if ((virtualSize % peheader.sectionAlignment)>0)
+                // 			    virtualSize += peheader.sectionAlignment - (virtualSize%peheader.sectionAlignment);
 
-                sect.PointerToRawData = sectoffset;
-                //			sect.SizeOfRawData =
-                sect.VirtualAddress = virtualAddress;
-                //			sect.VirtualSize = virtualSize;
+                sect.pointerToRawData = sectoffset;
+                //			sect.sizeOfRawData =
+                sect.virtualAddress = virtualAddress;
+                //			sect.virtualSize = virtualSize;
 
-                virtualAddress += sect.VirtualSize;
-                if ((virtualAddress % this.header.SectionAlignment) > 0) {
-                    virtualAddress += this.header.SectionAlignment -
-                            (virtualAddress % this.header.SectionAlignment);
+                virtualAddress += sect.virtualSize;
+                if ((virtualAddress % this.header.sectionAlignment) > 0) {
+                    virtualAddress += this.header.sectionAlignment -
+                            (virtualAddress % this.header.sectionAlignment);
                 }
             } else {
                 // generally a BSS, with a virtual size but no
                 // data in the file...
-                long virtualSize = sect.VirtualSize;
-                if ((virtualSize % this.header.SectionAlignment) > 0) {
-                    virtualSize += this.header.SectionAlignment -
-                            (virtualSize % this.header.SectionAlignment);
+                long virtualSize = sect.virtualSize;
+                if ((virtualSize % this.header.sectionAlignment) > 0) {
+                    virtualSize += this.header.sectionAlignment -
+                            (virtualSize % this.header.sectionAlignment);
                 }
 
-                sect.VirtualAddress = virtualAddress;
-                //			sect.VirtualSize = virtualSize;
+                sect.virtualAddress = virtualAddress;
+                //			sect.virtualSize = virtualSize;
                 virtualAddress += virtualSize;
             }
         }
 
         // Now that all the sections have been written, we have the
-        // correct VirtualAddress and Sizes, so we can update the new
+        // correct virtualAddress and Sizes, so we can update the new
         // header and all the section headers...
         this.header.updateVAAndSize(shs, shs);
 
@@ -320,7 +320,7 @@ public class PEFile {
         outputcount = out.write(bb);
 
         offset = this.oldMSDOSHeader.e_lfanew +
-                (header.NumberOfRvaAndSizes * 8) + 24 + 96;
+                (header.numberOfRvaAndSizes * 8) + 24 + 96;
         out.position(offset);
         for (int i = 0; i < shs.size(); i++) {
             SectionHeader h = shs.get(i);
@@ -394,13 +394,13 @@ public class PEFile {
         ResourceEntry languageEntry = buildResourceEntry(languageId, dataEntry);
         ResourceDirectory languageDir = new ResourceDirectory();
 
-        languageDir.TimeDateStamp = 0x3F2CCF64;
+        languageDir.timeDateStamp = 0x3F2CCF64;
         languageDir.addEntry(languageEntry);
 
         ResourceEntry identEntry = buildResourceEntry(resourceId, languageDir);
 
         ResourceDirectory identDir = new ResourceDirectory();
-        identDir.TimeDateStamp = 0x3F2CCF64;
+        identDir.timeDateStamp = 0x3F2CCF64;
         identDir.addEntry(identEntry);
 
         ResourceEntry catEntry = buildResourceEntry(catId, identDir);

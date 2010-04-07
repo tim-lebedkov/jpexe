@@ -31,28 +31,28 @@ import java.util.List;
 public class ResourceDirectory implements BinaryRecord {
     private long location;
 
-    long Characteristics; // uint32_t
-    public long TimeDateStamp; // uint32_t
-    int MajorVersion; // uint16_t
-    int MinorVersion; // uint16_t
+    long characteristics; // uint32_t
+    public long timeDateStamp; // uint32_t
+    int majorVersion; // uint16_t
+    int minorVersion; // uint16_t
     // int NumberOfNamedEntries; // uint16_t
     // int NumberOfIdEntries; // uint16_t
 
-    List<ResourceEntry> NamedEntries =
+    List<ResourceEntry> namedEntries =
             new ArrayList<ResourceEntry>();
-    List<ResourceEntry> IdEntries =
+    List<ResourceEntry> idEntries =
             new ArrayList<ResourceEntry>();
 
     public void addNamedEntry(ResourceEntry entry) {
-        this.NamedEntries.add(entry);
+        this.namedEntries.add(entry);
     }
 
     public void addIdEntry(ResourceEntry entry) {
-        this.IdEntries.add(entry);
+        this.idEntries.add(entry);
     }
 
     public void addEntry(ResourceEntry entry) {
-        if (entry.Name != null) {
+        if (entry.name != null) {
             addNamedEntry(entry);
         } else {
             addIdEntry(entry);
@@ -63,29 +63,29 @@ public class ResourceDirectory implements BinaryRecord {
         indent(level, out);
         out.println("Directory: ");
         indent(level, out);
-        out.println("Characteristics=" + this.Characteristics);
+        out.println("Characteristics=" + this.characteristics);
         indent(level, out);
-        out.println("TimeDateStamp=" + this.TimeDateStamp);
+        out.println("TimeDateStamp=" + this.timeDateStamp);
         indent(level, out);
-        out.println("MajorVersion=" + this.MajorVersion);
+        out.println("MajorVersion=" + this.majorVersion);
         indent(level, out);
-        out.println("MinorVersion=" + this.MinorVersion);
+        out.println("MinorVersion=" + this.minorVersion);
         indent(level, out);
-        out.println("NumberOfNamedEntries=" + this.NamedEntries.size());
+        out.println("NumberOfNamedEntries=" + this.namedEntries.size());
         indent(level, out);
-        out.println("NumberOfIdEntries=" + this.IdEntries.size());
+        out.println("NumberOfIdEntries=" + this.idEntries.size());
         indent(level, out);
         out.println("Named Entries:");
-        for (int i = 0; i < NamedEntries.size();
+        for (int i = 0; i < namedEntries.size();
                 i++) {
-            ResourceEntry re = NamedEntries.get(i);
+            ResourceEntry re = namedEntries.get(i);
             re.dump(out, level + 1);
         }
         indent(level, out);
         out.println("Id Entries:");
-        for (int i = 0; i < IdEntries.size();
+        for (int i = 0; i < idEntries.size();
                 i++) {
-            ResourceEntry re = IdEntries.get(i);
+            ResourceEntry re = idEntries.get(i);
             re.dump(out, level + 1);
         }
     }
@@ -99,14 +99,14 @@ public class ResourceDirectory implements BinaryRecord {
 
     public int diskSize() {
         int size = 16;
-        for (int i = 0; i < this.NamedEntries.size();
+        for (int i = 0; i < this.namedEntries.size();
                 i++) {
-            ResourceEntry re = NamedEntries.get(i);
+            ResourceEntry re = namedEntries.get(i);
             size += re.diskSize();
         }
-        for (int i = 0; i < this.IdEntries.size();
+        for (int i = 0; i < this.idEntries.size();
                 i++) {
-            ResourceEntry re = IdEntries.get(i);
+            ResourceEntry re = idEntries.get(i);
             size += re.diskSize();
         }
         if ((size % 4) > 0) {
@@ -120,11 +120,11 @@ public class ResourceDirectory implements BinaryRecord {
         // order. If no entry in lexical order, choose the
         // lowest integer id entry.
         if (name == null) {
-            if (NamedEntries.size() > 0) {
-                return NamedEntries.get(0);
+            if (namedEntries.size() > 0) {
+                return namedEntries.get(0);
             }
-            if (IdEntries.size() > 0) {
-                return IdEntries.get(0);
+            if (idEntries.size() > 0) {
+                return idEntries.get(0);
             }
             return null;
         }
@@ -138,22 +138,22 @@ public class ResourceDirectory implements BinaryRecord {
             }
         }
         for (Iterator<ResourceEntry> i =
-                this.NamedEntries.iterator(); i.hasNext();) {
+                this.namedEntries.iterator(); i.hasNext();) {
             ResourceEntry re = i.next();
-            if (name.equals(re.Name)) {
+            /*if (name.equals(re.resourceEntry.this.name)) {
                 return re;
-            }
+            } todo */
         }
         return null;
     }
 
     public ResourceEntry getResourceEntry(int id) {
         for (Iterator<ResourceEntry> i =
-                this.IdEntries.iterator(); i.hasNext();) {
+                this.idEntries.iterator(); i.hasNext();) {
             ResourceEntry re = i.next();
-            if (id == re.Id) {
+            /* todo if (id == re.ResourceEntry.this.id) {
                 return re;
-            }
+            }*/
         }
         return null;
     }
@@ -169,24 +169,24 @@ public class ResourceDirectory implements BinaryRecord {
     public ByteBuffer getData() {
         long virtualBaseOffset = 100; // TODO
         ByteBuffer buffer = ByteBuffer.allocate(100); // TODO
-        //			System.out.println("Building Directory Entry buffer @ " + buffer.position());
-        buffer.putInt((int) this.Characteristics);
-        buffer.putInt((int) this.TimeDateStamp);
-        buffer.putShort((short) this.MajorVersion);
-        buffer.putShort((short) this.MinorVersion);
-        buffer.putShort((short) this.NamedEntries.size());
-        buffer.putShort((short) this.IdEntries.size());
+        //			System.out.println("Building directory Entry buffer @ " + buffer.position());
+        buffer.putInt((int) this.characteristics);
+        buffer.putInt((int) this.timeDateStamp);
+        buffer.putShort((short) this.majorVersion);
+        buffer.putShort((short) this.minorVersion);
+        buffer.putShort((short) this.namedEntries.size());
+        buffer.putShort((short) this.idEntries.size());
         int dataOffset =
-                buffer.position() + (NamedEntries.size() * 8) +
-                (IdEntries.size() * 8);
-        for (int i = 0; i < this.NamedEntries.size();
+                buffer.position() + (namedEntries.size() * 8) +
+                (idEntries.size() * 8);
+        for (int i = 0; i < this.namedEntries.size();
                 i++) {
-            ResourceEntry re = this.NamedEntries.get(i);
+            ResourceEntry re = this.namedEntries.get(i);
             // TODO dataOffset = re.buildBuffer(buffer, virtualBaseOffset, dataOffset);
         }
-        for (int i = 0; i < this.IdEntries.size();
+        for (int i = 0; i < this.idEntries.size();
                 i++) {
-            ResourceEntry re = this.IdEntries.get(i);
+            ResourceEntry re = this.idEntries.get(i);
             // TODO dataOffset = re.buildBuffer(buffer, virtualBaseOffset, dataOffset);
         }
         buffer.position(dataOffset);
@@ -194,21 +194,21 @@ public class ResourceDirectory implements BinaryRecord {
     }
 
     public void setData(ByteBuffer header) {
-        Characteristics = header.getInt();
-        TimeDateStamp = header.getInt();
-        MajorVersion = header.getShort();
-        MinorVersion = header.getShort();
+        characteristics = header.getInt();
+        timeDateStamp = header.getInt();
+        majorVersion = header.getShort();
+        minorVersion = header.getShort();
         short NumberOfNamedEntries = header.getShort();
         short NumberOfIdEntries = header.getShort();
         for (int i = 0; i < NumberOfNamedEntries;
                 i++) {
             // TODO ResourceEntry re = new ResourceEntry(header);
-            // TODO NamedEntries.add(re);
+            // TODO namedEntries.add(re);
         }
         for (int i = 0; i < NumberOfIdEntries;
                 i++) {
             // TODO ResourceEntry re = new ResourceEntry(header);
-            // TODO IdEntries.add(re);
+            // TODO idEntries.add(re);
         }
     }
     

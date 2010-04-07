@@ -29,32 +29,32 @@ import java.awt.image.*;
 public class ResIcon implements BinaryRecord {
     private long location;
 
-    public long Size;            /* Size of this header in bytes DWORD*/
+    public long size;            /* size of this header in bytes DWORD*/
 
-    public long Width;           /* Image width in pixels LONG*/
+    public long width;           /* Image width in pixels LONG*/
 
-    public long Height;          /* Image height in pixels LONG*/
+    public long height;          /* Image height in pixels LONG*/
 
-    public int Planes;          /* Number of color planes WORD*/
+    public int planes;          /* Number of color planes WORD*/
 
-    public int BitsPerPixel;    /* Number of bits per pixel WORD*/
+    public int bitsPerPixel;    /* Number of bits per pixel WORD*/
     /* Fields added for Windows 3.x follow this line */
 
-    public long Compression;     /* Compression methods used DWORD*/
+    public long compression;     /* compression methods used DWORD*/
 
-    public long SizeOfBitmap;    /* Size of bitmap in bytes DWORD*/
+    public long sizeOfBitmap;    /* size of bitmap in bytes DWORD*/
 
-    public long HorzResolution;  /* Horizontal resolution in pixels per meter LONG*/
+    public long horzResolution;  /* Horizontal resolution in pixels per meter LONG*/
 
-    public long VertResolution;  /* Vertical resolution in pixels per meter LONG*/
+    public long vertResolution;  /* Vertical resolution in pixels per meter LONG*/
 
-    public long ColorsUsed;      /* Number of colors in the image DWORD*/
+    public long colorsUsed;      /* Number of colors in the image DWORD*/
 
-    public long ColorsImportant; /* Minimum number of important colors DWORD*/
+    public long colorsImportant; /* Minimum number of important colors DWORD*/
 
-    public PaletteElement[] Palette;
-    public short[] BitmapXOR;
-    public short[] BitmapAND;
+    public PaletteElement[] palette;
+    public short[] bitmapXOR;
+    public short[] bitmapAND;
 
     public long getLocation() {
         return location;
@@ -65,68 +65,68 @@ public class ResIcon implements BinaryRecord {
     }
 
     public void setData(ByteBuffer in) {
-        Size = in.getInt();
-        Width = in.getInt();
-        Height = in.getInt();
-        Planes = in.getShort();
-        BitsPerPixel = in.getShort();
-        Compression = in.getInt();
-        SizeOfBitmap = in.getInt();
-        HorzResolution = in.getInt();
-        VertResolution = in.getInt();
-        ColorsUsed = in.getInt();
-        ColorsImportant = in.getInt();
+        size = in.getInt();
+        width = in.getInt();
+        height = in.getInt();
+        planes = in.getShort();
+        bitsPerPixel = in.getShort();
+        compression = in.getInt();
+        sizeOfBitmap = in.getInt();
+        horzResolution = in.getInt();
+        vertResolution = in.getInt();
+        colorsUsed = in.getInt();
+        colorsImportant = in.getInt();
 
-        int cols = (int) ColorsUsed;
+        int cols = (int) colorsUsed;
         if (cols == 0) {
-            cols = 1 << BitsPerPixel;
+            cols = 1 << bitsPerPixel;
         }
 
-        Palette = new PaletteElement[cols];
-        for (int i = 0; i < Palette.length; i++) {
+        palette = new PaletteElement[cols];
+        for (int i = 0; i < palette.length; i++) {
             PaletteElement el = new PaletteElement();
             el.Blue = in.get();
             el.Green = in.get();
             el.Red = in.get();
             el.Reserved = in.get();
-            Palette[i] = el;
+            palette[i] = el;
         }
 
-        // int xorbytes = (((int)Height/2) * (int)Width * (int)BitsPerPixel) / 8;
-        int xorbytes = (((int) Height / 2) * (int) Width);
+        // int xorbytes = (((int)height/2) * (int)width * (int)bitsPerPixel) / 8;
+        int xorbytes = (((int) height / 2) * (int) width);
         //		System.out.println("POSITION " + in.position() + " : xorbitmap = " + xorbytes + " bytes");
 
-        BitmapXOR = new short[xorbytes];
-        for (int i = 0; i < BitmapXOR.length; i++) {
-            switch (BitsPerPixel) {
+        bitmapXOR = new short[xorbytes];
+        for (int i = 0; i < bitmapXOR.length; i++) {
+            switch (bitsPerPixel) {
                 case 4: {
                     int pix = in.get();
-                    BitmapXOR[i] = (short) ((pix >> 4) & 0x0F);
+                    bitmapXOR[i] = (short) ((pix >> 4) & 0x0F);
                     i++;
-                    BitmapXOR[i] = (short) (pix & 0x0F);
+                    bitmapXOR[i] = (short) (pix & 0x0F);
                 }
                 break;
                 case 8: {
-                    BitmapXOR[i] = in.get();
+                    bitmapXOR[i] = in.get();
                 }
                 break;
             }
         }
 
 
-        int height = (int) (Height / 2);
-        int rowsize = (int) Width / 8;
+        int height = (int) (this.height / 2);
+        int rowsize = (int) width / 8;
         if ((rowsize % 4) > 0) {
             rowsize += 4 - (rowsize % 4);
         }
 
         //		System.out.println("POSITION " + in.position() + " : andbitmap = " + andbytes + " bytes");
 
-        int andbytes = height * rowsize;   // (((int)Height/2) * (int)Width) / 8;
+        int andbytes = height * rowsize;   // (((int)height/2) * (int)width) / 8;
 
-        BitmapAND = new short[andbytes];
-        for (int i = 0; i < BitmapAND.length; i++) {
-            BitmapAND[i] = in.get();
+        bitmapAND = new short[andbytes];
+        for (int i = 0; i < bitmapAND.length; i++) {
+            bitmapAND[i] = in.get();
         }
     }
 
@@ -192,40 +192,40 @@ public class ResIcon implements BinaryRecord {
         Hashtable colors = calculateColorCount(pixelbuffer);
 
         // FORCE ALWAYS to 8
-        this.BitsPerPixel = 8;
+        this.bitsPerPixel = 8;
 
-        Palette = new ResIcon.PaletteElement[1 << BitsPerPixel];
-        //	System.out.println("Creating palette of " + Palette.length + " colors (" + colors.size() + ")");
+        palette = new ResIcon.PaletteElement[1 << bitsPerPixel];
+        //	System.out.println("Creating palette of " + palette.length + " colors (" + colors.size() + ")");
         for (Enumeration e = colors.keys(); e.hasMoreElements();) {
             Integer pixi = (Integer) e.nextElement();
             int pix = pixi.intValue();
             int index = ((Integer) colors.get(pixi)).intValue();
             //		System.out.println("set pixel " + index);
 
-            Palette[index] = new ResIcon.PaletteElement();
-            Palette[index].Blue = pix & 0xFF;
-            Palette[index].Green = (pix >> 8) & 0xff;
-            Palette[index].Red = (pix >> 16) & 0xff;
+            palette[index] = new ResIcon.PaletteElement();
+            palette[index].Blue = pix & 0xFF;
+            palette[index].Green = (pix >> 8) & 0xff;
+            palette[index].Red = (pix >> 16) & 0xff;
         }
-        for (int i = 0; i < Palette.length; i++) {
-            if (Palette[i] == null) {
-                Palette[i] = new ResIcon.PaletteElement();
+        for (int i = 0; i < palette.length; i++) {
+            if (palette[i] == null) {
+                palette[i] = new ResIcon.PaletteElement();
             }
         }
 
 
-        this.Size = 40;
-        this.Width = width;
-        this.Height = height * 2;
-        this.Planes = 1;
-        this.Compression = 0;
+        this.size = 40;
+        this.width = width;
+        this.height = height * 2;
+        this.planes = 1;
+        this.compression = 0;
 
-        this.SizeOfBitmap = 0;
-        this.HorzResolution = 0;
-        this.VertResolution = 0;
+        this.sizeOfBitmap = 0;
+        this.horzResolution = 0;
+        this.vertResolution = 0;
 
-        this.ColorsUsed = 0;
-        this.ColorsImportant = 0;
+        this.colorsUsed = 0;
+        this.colorsImportant = 0;
 
         //
         // We calculate the rowsize in bytes. It seems that it must be
@@ -237,12 +237,12 @@ public class ResIcon implements BinaryRecord {
             rowsize += 4 - (rowsize % 4);
         }
 
-        BitmapXOR = new short[(((int) Height / 2) * (int) Width
-                * BitsPerPixel) / 8];
-        BitmapAND = new short[((int) Height / 2) * rowsize];
+        bitmapXOR = new short[(((int) this.height / 2) * (int) this.width
+                * bitsPerPixel) / 8];
+        bitmapAND = new short[((int) this.height / 2) * rowsize];
 
-        int bxl = BitmapXOR.length - 1;
-        int bal = BitmapAND.length - 1;
+        int bxl = bitmapXOR.length - 1;
+        int bal = bitmapAND.length - 1;
 
         for (int i = 0; i < pixelbuffer.length; i++) {
             int col = i % width;
@@ -259,8 +259,8 @@ public class ResIcon implements BinaryRecord {
             // (as it is not supposed to be displayed)
             //
             if ((((pixelbuffer[i] >> 24) & 0xFF) == 0)) {
-                BitmapAND[bal] |= 1 << (7 - (i % 8));
-                BitmapXOR[bxl] = 0xFF; // (short)getBrightest(); FF
+                bitmapAND[bal] |= 1 << (7 - (i % 8));
+                bitmapXOR[bxl] = 0xFF; // (short)getBrightest(); FF
 
                 // 				int pixel = pixelbuffer[i] & 0x00FFFFFF;
                 // 				pixel = 0x000000;
@@ -268,11 +268,11 @@ public class ResIcon implements BinaryRecord {
                 // 				if (icol != null)
                 // 				{
                 // 					int palindex = icol.intValue();
-                // 					BitmapXOR[bxl] = (short)palindex;
+                // 					bitmapXOR[bxl] = (short)palindex;
                 // 				}
                 // 				else
                 // 				{
-                // 				    BitmapXOR[bxl] = 0; // (short)getBrightest();
+                // 				    bitmapXOR[bxl] = 0; // (short)getBrightest();
                 // 				    System.out.println("Can't find TRANSP BLACK COL " + icol );
                 // 				}
             } else {
@@ -281,7 +281,7 @@ public class ResIcon implements BinaryRecord {
                 Integer icol = (Integer) colors.get(new Integer(pixel));
                 if (icol != null) {
                     int palindex = icol.intValue();
-                    BitmapXOR[bxl] = (short) palindex;
+                    bitmapXOR[bxl] = (short) palindex;
                 }
             }
         }
@@ -290,8 +290,8 @@ public class ResIcon implements BinaryRecord {
     private int getBrightest() {
         int result = 0;
         int averesult = 0;
-        for (int i = 0; i < Palette.length; i++) {
-            int ave1 = (Palette[0].Red + Palette[0].Green + Palette[0].Blue) / 3;
+        for (int i = 0; i < palette.length; i++) {
+            int ave1 = (palette[0].Red + palette[0].Green + palette[0].Blue) / 3;
             if (ave1 > averesult) {
                 averesult = ave1;
                 result = i;
@@ -327,68 +327,68 @@ public class ResIcon implements BinaryRecord {
      * @return a ByteBuffer with the .ico data
      */
     public ByteBuffer getData() {
-        int cols = (int) ColorsUsed;
+        int cols = (int) colorsUsed;
         if (cols == 0) {
-            cols = 1 << BitsPerPixel;
+            cols = 1 << bitsPerPixel;
         }
 
-        int rowsize = (int) Width / 8;
+        int rowsize = (int) width / 8;
         if ((rowsize % 4) > 0) {
             rowsize += 4 - (rowsize % 4);
         }
 
-        ByteBuffer buf = ByteBuffer.allocate((int) (40 + (cols * 4) + (Width * (Height
-                / 2) * BitsPerPixel) / 8 + (rowsize * (Height / 2))));
+        ByteBuffer buf = ByteBuffer.allocate((int) (40 + (cols * 4) + (width * (height
+                / 2) * bitsPerPixel) / 8 + (rowsize * (height / 2))));
         buf.order(ByteOrder.LITTLE_ENDIAN);
         buf.position(0);
 
-        buf.putInt((int) Size);
-        buf.putInt((int) Width);
-        buf.putInt((int) Height);
-        buf.putShort((short) Planes);
-        buf.putShort((short) BitsPerPixel);
-        buf.putInt((int) Compression);
-        buf.putInt((int) SizeOfBitmap);
-        buf.putInt((int) HorzResolution);
-        buf.putInt((int) VertResolution);
-        buf.putInt((int) ColorsUsed);
-        buf.putInt((int) ColorsImportant);
+        buf.putInt((int) size);
+        buf.putInt((int) width);
+        buf.putInt((int) height);
+        buf.putShort((short) planes);
+        buf.putShort((short) bitsPerPixel);
+        buf.putInt((int) compression);
+        buf.putInt((int) sizeOfBitmap);
+        buf.putInt((int) horzResolution);
+        buf.putInt((int) vertResolution);
+        buf.putInt((int) colorsUsed);
+        buf.putInt((int) colorsImportant);
 
-        //		System.out.println("GET DATA :: Palette.size= "+Palette.length + " // position=" + buf.position());
-        for (int i = 0; i < Palette.length; i++) {
-            PaletteElement el = Palette[i];
+        //		System.out.println("GET DATA :: palette.size= "+palette.length + " // position=" + buf.position());
+        for (int i = 0; i < palette.length; i++) {
+            PaletteElement el = palette[i];
             buf.put((byte) el.Blue);
             buf.put((byte) el.Green);
             buf.put((byte) el.Red);
             buf.put((byte) el.Reserved);
         }
 
-        switch (BitsPerPixel) {
+        switch (bitsPerPixel) {
             case 4: {
-                for (int i = 0; i < BitmapXOR.length; i += 2) {
-                    int v1 = BitmapXOR[i];
-                    int v2 = BitmapXOR[i + 1];
+                for (int i = 0; i < bitmapXOR.length; i += 2) {
+                    int v1 = bitmapXOR[i];
+                    int v2 = bitmapXOR[i + 1];
                     buf.put((byte) ((v1 << 4) | v2));
                 }
             }
             break;
 
             case 8: {
-                //				System.out.println("GET DATA :: XORBitmap.size= "+BitmapXOR.length + " // position=" + buf.position());
-                for (int i = 0; i < BitmapXOR.length; i++) {
-                    buf.put((byte) BitmapXOR[i]);
+                //				System.out.println("GET DATA :: XORBitmap.size= "+bitmapXOR.length + " // position=" + buf.position());
+                for (int i = 0; i < bitmapXOR.length; i++) {
+                    buf.put((byte) bitmapXOR[i]);
                 }
             }
             break;
 
             default:
-                throw new RuntimeException("BitRes " + BitsPerPixel
+                throw new RuntimeException("BitRes " + bitsPerPixel
                         + " not supported!");
         }
 
-        //		System.out.println("GET DATA :: AndBitmap.size= "+BitmapAND.length + " // position=" + buf.position());
-        for (int i = 0; i < BitmapAND.length; i++) {
-            buf.put((byte) BitmapAND[i]);
+        //		System.out.println("GET DATA :: AndBitmap.size= "+bitmapAND.length + " // position=" + buf.position());
+        for (int i = 0; i < bitmapAND.length; i++) {
+            buf.put((byte) bitmapAND[i]);
         }
 
         //		System.out.println("GET DATA END AT " + buf.position());
@@ -399,30 +399,30 @@ public class ResIcon implements BinaryRecord {
     public String toString() {
         StringBuffer out = new StringBuffer();
 
-        out.append("Size: " + Size);
-        out.append("\nWidth: " + Width);
-        out.append("\nHeight: " + Height);
-        out.append("\nPlanes: " + Planes);
-        out.append("\nBitsPerPixel: " + BitsPerPixel);
-        out.append("\nCompression: " + Compression);
-        out.append("\nSizeOfBitmap: " + SizeOfBitmap);
-        out.append("\nHorzResolution: " + HorzResolution);
-        out.append("\nVertResolution: " + VertResolution);
-        out.append("\nColorsUsed: " + ColorsUsed);
-        out.append("\nColorsImportant: " + ColorsImportant);
+        out.append("Size: " + size);
+        out.append("\nWidth: " + width);
+        out.append("\nHeight: " + height);
+        out.append("\nPlanes: " + planes);
+        out.append("\nBitsPerPixel: " + bitsPerPixel);
+        out.append("\nCompression: " + compression);
+        out.append("\nSizeOfBitmap: " + sizeOfBitmap);
+        out.append("\nHorzResolution: " + horzResolution);
+        out.append("\nVertResolution: " + vertResolution);
+        out.append("\nColorsUsed: " + colorsUsed);
+        out.append("\nColorsImportant: " + colorsImportant);
 
-        //		for (int i = 0; i<Palette.length; i++)
+        //		for (int i = 0; i<palette.length; i++)
         //		{
         //			out.append("\n");
-        //			out.append(Palette[i].toString());
+        //			out.append(palette[i].toString());
         //		}
-        out.append("\nBitmapXOR[" + BitmapXOR.length + "]={");
-        for (int i = 0; i < BitmapXOR.length; i++) {
-            out.append((byte) BitmapXOR[i]);
+        out.append("\nBitmapXOR[" + bitmapXOR.length + "]={");
+        for (int i = 0; i < bitmapXOR.length; i++) {
+            out.append((byte) bitmapXOR[i]);
         }
-        out.append("}\nBitmapAnd[" + BitmapAND.length + "]={");
-        for (int i = 0; i < BitmapAND.length; i++) {
-            out.append((byte) BitmapAND[i]);
+        out.append("}\nBitmapAnd[" + bitmapAND.length + "]={");
+        for (int i = 0; i < bitmapAND.length; i++) {
+            out.append((byte) bitmapAND[i]);
         }
 
         return out.toString();

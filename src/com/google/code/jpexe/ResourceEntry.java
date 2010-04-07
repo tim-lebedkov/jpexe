@@ -29,30 +29,30 @@ import java.nio.ByteOrder;
 public class ResourceEntry implements BinaryRecord {
     private long location;
 
-    public int Id;
-    public String Name;
-    public ResourceDirectory Directory;
-    public ResourceDataEntry Data;
-    private ResourceDirectory PEResourceDirectory_this;
+    public int id;
+    public String name;
+    public ResourceDirectory directory;
+    public ResourceDataEntry data;
+    private ResourceDirectory resourceDirectory_this;
 
     public ResourceEntry(int id, ResourceDataEntry data) {
-        this.Id = id;
-        this.Data = data;
+        this.id = id;
+        this.data = data;
     }
 
     public ResourceEntry(String name, ResourceDataEntry data) {
-        this.Name = name;
-        this.Data = data;
+        this.name = name;
+        this.data = data;
     }
 
     public ResourceEntry(int id, ResourceDirectory dir) {
-        this.Id = id;
-        this.Directory = dir;
+        this.id = id;
+        this.directory = dir;
     }
 
     public ResourceEntry(String name, ResourceDirectory dir) {
-        this.Name = name;
-        this.Directory = dir;
+        this.name = name;
+        this.directory = dir;
     }
 
     public String extractStringAt(ByteBuffer chan, int offset) {
@@ -84,14 +84,14 @@ public class ResourceEntry implements BinaryRecord {
 
     public int diskSize() {
         int size = 8;
-        if (Name != null) {
-            size += (Name.length() * 2) + 2;
+        if (name != null) {
+            size += (name.length() * 2) + 2;
         }
 
-        if (Directory != null) {
-            size += Directory.diskSize();
-        } else if (Data != null) {
-            size += Data.diskSize();
+        if (directory != null) {
+            size += directory.diskSize();
+        } else if (data != null) {
+            size += data.diskSize();
         }
 
         if ((size % 4) > 0) {
@@ -102,19 +102,19 @@ public class ResourceEntry implements BinaryRecord {
 
     public void dump(PrintStream out, int level) {
         indent(level, out);
-        if (this.Name != null) {
-            out.println("Name=" + Name);
+        if (this.name != null) {
+            out.println("Name=" + name);
         } else {
-            out.println("Id=#" + Id);
+            out.println("Id=#" + id);
         }
 
         indent(level, out);
-        if (this.Directory != null) {
+        if (this.directory != null) {
             out.println("ENTRY: DIRECTORY POINTER");
-            this.Directory.dump(out, level + 1);
+            this.directory.dump(out, level + 1);
         } else {
             out.println("ENTRY: DATA ENTRY");
-            Data.dump(out, level + 1);
+            data.dump(out, level + 1);
         }
     }
 
@@ -136,46 +136,46 @@ public class ResourceEntry implements BinaryRecord {
         long virtualBaseOffset = 0; // TODO
         int dataOffset = 0; // TODO
         ByteBuffer buffer = ByteBuffer.allocate(100); // TODO
-        //			System.out.println("Building Resource Entry buffer  " + Name + "/" + Id + " @ " + buffer.position() + " (" + dataOffset + ")");
-        if (Name != null) {
+        //			System.out.println("Building Resource Entry buffer  " + name + "/" + id + " @ " + buffer.position() + " (" + dataOffset + ")");
+        if (name != null) {
             buffer.putInt(dataOffset | 0x80000000);
 
             int stringoffset = dataOffset;
-            ByteBuffer strbuf = ByteBuffer.allocate(Name.length() * 2 + 2);
+            ByteBuffer strbuf = ByteBuffer.allocate(name.length() * 2 + 2);
             strbuf.order(ByteOrder.LITTLE_ENDIAN);
 
-            strbuf.putShort((short) Name.length());
-            for (int i = 0; i < Name.length(); i++) {
-                strbuf.putShort((short) Name.charAt(i));
+            strbuf.putShort((short) name.length());
+            for (int i = 0; i < name.length(); i++) {
+                strbuf.putShort((short) name.charAt(i));
             }
             strbuf.position(0);
 
             long oldpos = buffer.position();
             buffer.position(dataOffset);
             buffer.put(strbuf);
-            dataOffset += Name.length() * 2 + 2;
+            dataOffset += name.length() * 2 + 2;
             if ((dataOffset % 4) != 0) {
                 dataOffset += 4 - (dataOffset % 4);
             }
             buffer.position((int) oldpos);
         } else {
-            buffer.putInt(Id);
+            buffer.putInt(id);
         }
 
-        if (Directory != null) {
+        if (directory != null) {
             buffer.putInt(dataOffset | 0x80000000);
 
             int oldpos = buffer.position();
             buffer.position(dataOffset);
-            // todo int dirsize = Directory.buildBuffer(buffer, virtualBaseOffset);
+            // todo int dirsize = directory.buildBuffer(buffer, virtualBaseOffset);
             // dataOffset = dirsize;
             buffer.position(oldpos);
 
-        } else if (Data != null) {
+        } else if (data != null) {
             buffer.putInt(dataOffset);
             int oldpos = buffer.position();
             buffer.position(dataOffset);
-            /* todo dataOffset = Data.buildBuffer(buffer, virtualBaseOffset,
+            /* todo dataOffset = data.buildBuffer(buffer, virtualBaseOffset,
                     dataOffset);*/
             buffer.position(oldpos);
         } else {
@@ -194,11 +194,11 @@ public class ResourceEntry implements BinaryRecord {
 
         if (val < 0) {
             val &= 0x7FFFFFFF;
-            Name = extractStringAt(buf, val);
-            Id = -1;
-            //				System.out.println("    String at " + val + " = " + Name);
+            name = extractStringAt(buf, val);
+            id = -1;
+            //				System.out.println("    String at " + val + " = " + name);
         } else {
-            Id = val;
+            id = val;
         }
 
         if (offsetToData < 0) {
@@ -206,11 +206,11 @@ public class ResourceEntry implements BinaryRecord {
             long orgpos = buf.position();
             /*buf.position((int) (PEResourceDirectory_this.offset +
                     offsetToData)); todo */
-            Directory = new ResourceDirectory();
+            directory = new ResourceDirectory();
             // TODO setData?
             buf.position((int) orgpos);
         } else {
-            // TODO Data = new ResourceDataEntry(buf/* todo, offsetToData*/);
+            // TODO data = new ResourceDataEntry(buf/* todo, offsetToData*/);
         }
     }
 }

@@ -21,7 +21,6 @@ package com.google.code.jpexe;
 
 import java.io.*;
 import java.awt.image.*;
-import java.awt.*;
 
 /**
  * Codec for .ico files.
@@ -43,35 +42,35 @@ public class IcoCodec {
     }
 
     static public class IconEntry {
-        short bWidth;
-        short bHeight;
-        short bColorCount;
-        short bReserved;
-        int wPlanes;
-        int wBitCount;
-        long dwBytesInRes;
-        long dwImageOffset;
+        short width;
+        short height;
+        short colorCount;
+        short reserved;
+        int planes;
+        int bitCount;
+        long bytesInRes;
+        long imageOffset;
 
         public IconEntry(BinaryInputStream in) throws IOException {
-            bWidth = in.readUByte();
-            bHeight = in.readUByte();
-            bColorCount = in.readUByte();
-            bReserved = in.readUByte();
-            wPlanes = in.readUShortLE();
-            wBitCount = in.readUShortLE();
-            dwBytesInRes = in.readUIntLE();
-            dwImageOffset = in.readUIntLE();
+            width = in.readUByte();
+            height = in.readUByte();
+            colorCount = in.readUByte();
+            reserved = in.readUByte();
+            planes = in.readUShortLE();
+            bitCount = in.readUShortLE();
+            bytesInRes = in.readUIntLE();
+            imageOffset = in.readUIntLE();
         }
 
         public String toString() {
             StringBuffer buffer = new StringBuffer();
-            buffer.append("{ bWidth=" + bWidth + "\n");
-            buffer.append("  bHeight=" + bHeight + "\n");
-            buffer.append("  bColorCount=" + bColorCount + "\n");
-            buffer.append("  wPlanes=" + wPlanes + "\n");
-            buffer.append("  wBitCount=" + wBitCount + "\n");
-            buffer.append("  dwBytesInRes=" + dwBytesInRes + "\n");
-            buffer.append("  dwImageOffset=" + dwImageOffset + "\n");
+            buffer.append("{ bWidth=" + width + "\n");
+            buffer.append("  bHeight=" + height + "\n");
+            buffer.append("  bColorCount=" + colorCount + "\n");
+            buffer.append("  wPlanes=" + planes + "\n");
+            buffer.append("  wBitCount=" + bitCount + "\n");
+            buffer.append("  dwBytesInRes=" + bytesInRes + "\n");
+            buffer.append("  dwImageOffset=" + imageOffset + "\n");
             buffer.append("}");
 
             return buffer.toString();
@@ -79,68 +78,68 @@ public class IcoCodec {
     }
 
     static public class IconHeader {
-        public long Size;            /* Size of this header in bytes DWORD 0*/
+        public long size;            /* size of this header in bytes DWORD 0*/
 
-        public long Width;           /* Image width in pixels LONG 4*/
+        public long width;           /* Image width in pixels LONG 4*/
 
-        public long Height;          /* Image height in pixels LONG 8*/
+        public long height;          /* Image height in pixels LONG 8*/
 
-        public int Planes;          /* Number of color planes WORD 12 */
+        public int planes;          /* Number of color planes WORD 12 */
 
-        public int BitsPerPixel;    /* Number of bits per pixel WORD 14 */
+        public int bitsPerPixel;    /* Number of bits per pixel WORD 14 */
         /* Fields added for Windows 3.x follow this line */
 
-        public long Compression;     /* Compression methods used DWORD 16 */
+        public long compression;     /* compression methods used DWORD 16 */
 
-        public long SizeOfBitmap;    /* Size of bitmap in bytes DWORD 20 */
+        public long sizeOfBitmap;    /* size of bitmap in bytes DWORD 20 */
 
-        public long HorzResolution;  /* Horizontal resolution in pixels per meter LONG 24 */
+        public long horzResolution;  /* Horizontal resolution in pixels per meter LONG 24 */
 
-        public long VertResolution;  /* Vertical resolution in pixels per meter LONG 28*/
+        public long vertResolution;  /* Vertical resolution in pixels per meter LONG 28*/
 
-        public long ColorsUsed;      /* Number of colors in the image DWORD 32 */
+        public long colorsUsed;      /* Number of colors in the image DWORD 32 */
 
-        public long ColorsImportant; /* Minimum number of important colors DWORD 36 */
+        public long colorsImportant; /* Minimum number of important colors DWORD 36 */
 
 
         public IconHeader(BinaryInputStream in) throws IOException {
-            Size = in.readUIntLE();
-            Width = in.readUIntLE();
-            Height = in.readUIntLE();
-            Planes = in.readUShortLE();
-            BitsPerPixel = in.readUShortLE();
-            Compression = in.readUIntLE();
-            SizeOfBitmap = in.readUIntLE();
-            HorzResolution = in.readUIntLE();
-            VertResolution = in.readUIntLE();
-            ColorsUsed = in.readUIntLE();
-            ColorsImportant = in.readUIntLE();
+            size = in.readUIntLE();
+            width = in.readUIntLE();
+            height = in.readUIntLE();
+            planes = in.readUShortLE();
+            bitsPerPixel = in.readUShortLE();
+            compression = in.readUIntLE();
+            sizeOfBitmap = in.readUIntLE();
+            horzResolution = in.readUIntLE();
+            vertResolution = in.readUIntLE();
+            colorsUsed = in.readUIntLE();
+            colorsImportant = in.readUIntLE();
         }
 
         public String toString() {
             StringBuffer buffer = new StringBuffer();
             buffer.append("Size=");
-            buffer.append(Size);
+            buffer.append(size);
             buffer.append("\nWidth=");
-            buffer.append(Width);
+            buffer.append(width);
             buffer.append("\nHeight=");
-            buffer.append(Height);
+            buffer.append(height);
             buffer.append("\nPlanes=");
-            buffer.append(Planes);
+            buffer.append(planes);
             buffer.append("\nBitsPerPixel=");
-            buffer.append(BitsPerPixel);
+            buffer.append(bitsPerPixel);
             buffer.append("\nCompression=");
-            buffer.append(Compression);
+            buffer.append(compression);
             buffer.append("\nSizeOfBitmap=");
-            buffer.append(SizeOfBitmap);
+            buffer.append(sizeOfBitmap);
             buffer.append("\nHorzResolution=");
-            buffer.append(HorzResolution);
+            buffer.append(horzResolution);
             buffer.append("\nVertResolution=");
-            buffer.append(VertResolution);
+            buffer.append(vertResolution);
             buffer.append("\nColorsUsed=");
-            buffer.append(ColorsUsed);
+            buffer.append(colorsUsed);
             buffer.append("\nColorsImportant=");
-            buffer.append(ColorsImportant);
+            buffer.append(colorsImportant);
 
             return buffer.toString();
         }
@@ -170,23 +169,23 @@ public class IcoCodec {
 
             for (int i = 0; i < dir.idCount; i++) {
                 in.reset();
-                in.skip(entries[i].dwImageOffset);
+                in.skip(entries[i].imageOffset);
 
                 IconHeader header = new IconHeader(in);
                 //		    System.out.println("Header: " + header);
 
-                long toskip = header.Size - 40;
+                long toskip = header.size - 40;
                 if (toskip > 0) {
                     in.skip((int) toskip);
                 }
 
                 //		    System.out.println("skipped data");
 
-                BufferedImage image = new BufferedImage((int) header.Width, (int) header.Height
+                BufferedImage image = new BufferedImage((int) header.width, (int) header.height
                         / 2,
                         BufferedImage.TYPE_INT_ARGB);
 
-                switch (header.BitsPerPixel) {
+                switch (header.bitsPerPixel) {
                     case 4:
                     case 8:
                         loadPalettedImage(in, entries[i], header, image);
@@ -194,7 +193,7 @@ public class IcoCodec {
 
                     default:
                         throw new Exception("Unsupported ICO color depth: "
-                                + header.BitsPerPixel);
+                                + header.bitsPerPixel);
                 }
 
                 images[i] = image;
@@ -218,12 +217,12 @@ public class IcoCodec {
         //
         // First, load the palette
         //
-        int cols = (int) header.ColorsUsed;
+        int cols = (int) header.colorsUsed;
         if (cols == 0) {
-            if (entry.bColorCount != 0) {
-                cols = entry.bColorCount;
+            if (entry.colorCount != 0) {
+                cols = entry.colorCount;
             } else {
-                cols = 1 << header.BitsPerPixel;
+                cols = 1 << header.bitsPerPixel;
             }
         }
 
@@ -243,12 +242,12 @@ public class IcoCodec {
         //
         // Set the image
 
-        int xorbytes = (((int) header.Height / 2) * (int) header.Width);
+        int xorbytes = (((int) header.height / 2) * (int) header.width);
         int readbytes = 0;
 
-        for (int y = (int) (header.Height / 2) - 1; y >= 0; y--) {
-            for (int x = 0; x < header.Width; x++) {
-                switch (header.BitsPerPixel) {
+        for (int y = (int) (header.height / 2) - 1; y >= 0; y--) {
+            for (int x = 0; x < header.width; x++) {
+                switch (header.bitsPerPixel) {
                     case 4: {
                         int pix = in.readUByte();
                         readbytes++;
@@ -274,9 +273,9 @@ public class IcoCodec {
         }
         //	System.out.println("XOR data read (" + readbytes + " bytes)");
 
-        int height = (int) (header.Height / 2);
+        int height = (int) (header.height / 2);
 
-        int rowsize = (int) header.Width / 8;
+        int rowsize = (int) header.width / 8;
         if ((rowsize % 4) > 0) {
             rowsize += 4 - (rowsize % 4);
         }
@@ -290,7 +289,7 @@ public class IcoCodec {
 
 
         for (int y = height - 1; y >= 0; y--) {
-            for (int x = 0; x < header.Width; x++) {
+            for (int x = 0; x < header.width; x++) {
                 int offset = ((height - (y + 1)) * rowsize) + (x / 8);
                 if ((andbytes[offset] & (1 << (7 - x % 8))) != 0) {
                     image.setRGB(x, y, 0);
@@ -303,8 +302,8 @@ public class IcoCodec {
         // 		int pix = in.readUByte();
         // 		readbytes++;
 
-        // 		int xb = (i*8) % (int)header.Width;
-        // 		int yb = ((int)header.Height/2) - (((i*8) / (int)header.Width)+1);
+        // 		int xb = (i*8) % (int)header.width;
+        // 		int yb = ((int)header.height/2) - (((i*8) / (int)header.width)+1);
 
         // 		for (int offset=7; offset>=0; offset--)
         // 		    {
