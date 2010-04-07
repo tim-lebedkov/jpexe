@@ -1,3 +1,21 @@
+/*
+ * jpexe
+ * Copyright (C) 2003-2010 see http://code.google.com/p/jpexe/
+ *
+ * This program is free software; you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation; either version 2 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program; if not, write to the Free Software
+ * Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+ */
 
 package com.google.code.jpexe;
 
@@ -6,9 +24,11 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 /**
- * TODO
+ * Entry in a resource directory.
  */
-public  class ResourceEntry {
+public class ResourceEntry implements BinaryRecord {
+    private long location;
+
     public int Id;
     public String Name;
     public ResourceDirectory Directory;
@@ -33,35 +53,6 @@ public  class ResourceEntry {
     public ResourceEntry(String name, ResourceDirectory dir) {
         this.Name = name;
         this.Directory = dir;
-    }
-
-    public ResourceEntry(ByteBuffer buf) {
-        long orgchanpos = buf.position();
-        int val = buf.getInt();
-        long offsetToData = buf.getInt();
-        // 			System.out.println("Entry: Val=" + val);
-        // 			System.out.println("       Off=" + offsetToData);
-
-        if (val < 0) {
-            val &= 0x7FFFFFFF;
-            Name = extractStringAt(buf, val);
-            Id = -1;
-            //				System.out.println("    String at " + val + " = " + Name);
-        } else {
-            Id = val;
-        }
-
-        if (offsetToData < 0) {
-            offsetToData &= 0x7FFFFFFF;
-            long orgpos = buf.position();
-            /*buf.position((int) (PEResourceDirectory_this.offset +
-                    offsetToData)); todo */
-            Directory = new ResourceDirectory();
-            // TODO setData?
-            buf.position((int) orgpos);
-        } else {
-            Data = new ResourceDataEntry(buf/* todo, offsetToData*/);
-        }
     }
 
     public String extractStringAt(ByteBuffer chan, int offset) {
@@ -133,8 +124,18 @@ public  class ResourceEntry {
         }
     }
 
-    public int buildBuffer(ByteBuffer buffer, long virtualBaseOffset,
-            int dataOffset) {
+    public long getLocation() {
+        return location;
+    }
+
+    public void setLocation(long location) {
+        this.location = location;
+    }
+
+    public ByteBuffer getData() {
+        long virtualBaseOffset = 0; // TODO
+        int dataOffset = 0; // TODO
+        ByteBuffer buffer = ByteBuffer.allocate(100); // TODO
         //			System.out.println("Building Resource Entry buffer  " + Name + "/" + Id + " @ " + buffer.position() + " (" + dataOffset + ")");
         if (Name != null) {
             buffer.putInt(dataOffset | 0x80000000);
@@ -181,6 +182,35 @@ public  class ResourceEntry {
             throw new RuntimeException("Directory and Data are both null!");
         }
 
-        return dataOffset;
+        return buffer;
+    }
+
+    public void setData(ByteBuffer buf) {
+        long orgchanpos = buf.position();
+        int val = buf.getInt();
+        long offsetToData = buf.getInt();
+        // 			System.out.println("Entry: Val=" + val);
+        // 			System.out.println("       Off=" + offsetToData);
+
+        if (val < 0) {
+            val &= 0x7FFFFFFF;
+            Name = extractStringAt(buf, val);
+            Id = -1;
+            //				System.out.println("    String at " + val + " = " + Name);
+        } else {
+            Id = val;
+        }
+
+        if (offsetToData < 0) {
+            offsetToData &= 0x7FFFFFFF;
+            long orgpos = buf.position();
+            /*buf.position((int) (PEResourceDirectory_this.offset +
+                    offsetToData)); todo */
+            Directory = new ResourceDirectory();
+            // TODO setData?
+            buf.position((int) orgpos);
+        } else {
+            Data = new ResourceDataEntry(buf/* todo, offsetToData*/);
+        }
     }
 }
