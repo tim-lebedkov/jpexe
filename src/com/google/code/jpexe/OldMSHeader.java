@@ -26,7 +26,7 @@ import java.nio.*;
  * Old MSDOS 2.0 .exe header.
  * http://www.skynet.ie/~caolan/publink/winresdump/winresdump/doc/pefile.html
  */
-public class PEOldMSHeader implements Cloneable, BinaryRecord {
+public class OldMSHeader implements Cloneable, BinaryRecord {
     public int e_cblp;          // Bytes on last page of file //  2
     public int e_cp;            // Pages in file //  4
     public int e_crlc;          // Relocations //  6

@@ -26,7 +26,7 @@ import java.util.*;
 /**
  * PE header.
  */
-public class PEHeader implements Cloneable, BinaryRecord {
+public class Header implements Cloneable, BinaryRecord {
     private long location;
 
     public int Machine; //  4
@@ -383,8 +383,8 @@ public class PEHeader implements Cloneable, BinaryRecord {
         return head;
     }
 
-    public void updateVAAndSize(List<PESectionHeader> oldsections,
-            List<PESectionHeader> newsections) {
+    public void updateVAAndSize(List<SectionHeader> oldsections,
+            List<SectionHeader> newsections) {
         long codebase = findNewVA(this.BaseOfCode, oldsections, newsections);
         long codesize = findNewSize(this.BaseOfCode, oldsections, newsections);
         //	System.out.println("New BaseOfCode=" + codebase + " (size=" + codesize + ")");
@@ -401,7 +401,7 @@ public class PEHeader implements Cloneable, BinaryRecord {
 
         long imagesize = 0;
         for (int i = 0; i < newsections.size(); i++) {
-            PESectionHeader sect = newsections.get(i);
+            SectionHeader sect = newsections.get(i);
             long curmax = sect.VirtualAddress + sect.VirtualSize;
             if (curmax > imagesize) {
                 imagesize = curmax;
@@ -470,19 +470,19 @@ public class PEHeader implements Cloneable, BinaryRecord {
                 newsections);
     }
 
-    private long findNewVA(long current, List<PESectionHeader> oldsections,
-            List<PESectionHeader> newsections) {
+    private long findNewVA(long current, List<SectionHeader> oldsections,
+            List<SectionHeader> newsections) {
         for (int i = 0; i < oldsections.size(); i++) {
-            PESectionHeader sect = oldsections.get(i);
+            SectionHeader sect = oldsections.get(i);
             if (sect.VirtualAddress == current) {
-                PESectionHeader newsect = newsections.get(i);
+                SectionHeader newsect = newsections.get(i);
 
                 //			System.out.println("Translation VA found for " + current + " = " + i + " (" +newsect.VirtualAddress + ")=" + newsect.getName());
                 return newsect.VirtualAddress;
             } else if ((current > sect.VirtualAddress) && (current < (sect.VirtualAddress
                     + sect.VirtualSize))) {
                 long diff = current - sect.VirtualAddress;
-                PESectionHeader newsect = newsections.get(i);
+                SectionHeader newsect = newsections.get(i);
                 //			System.out.println("Translation VA found INSIDE " + current + " = " + i + " (" +newsect.VirtualAddress + ")=" + newsect.getName());
                 return newsect.VirtualAddress + diff;
             }
@@ -490,12 +490,12 @@ public class PEHeader implements Cloneable, BinaryRecord {
         return 0;
     }
 
-    private long findNewSize(long current, List<PESectionHeader> oldsections,
-            List<PESectionHeader> newsections) {
+    private long findNewSize(long current, List<SectionHeader> oldsections,
+            List<SectionHeader> newsections) {
         for (int i = 0; i < oldsections.size(); i++) {
-            PESectionHeader sect = oldsections.get(i);
+            SectionHeader sect = oldsections.get(i);
             if (sect.VirtualAddress == current) {
-                PESectionHeader newsect = newsections.get(i);
+                SectionHeader newsect = newsections.get(i);
                 //			System.out.println("Translation Size found for " + current + " = " + i + " (" +newsect.VirtualAddress + ")=" + newsect.getName());
                 //			System.out.println("         Old size " + sect.VirtualSize + " vs new size " + newsect.VirtualSize);
                 return newsect.VirtualSize;

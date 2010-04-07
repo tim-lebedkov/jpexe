@@ -24,7 +24,7 @@ import java.nio.*;
 /**
  * A section header in a PE file.
  */
-public class PESectionHeader implements Cloneable, BinaryRecord {
+public class SectionHeader implements Cloneable, BinaryRecord {
     /** this field is always 8 bytes long */
     public byte[] ANSI_Name; // Name of the Section. Can be anything (0)(8BYTES)
 
@@ -58,20 +58,20 @@ public class PESectionHeader implements Cloneable, BinaryRecord {
     private long m_baseoffset;
 
     /**
-     * Creates a new instance of PESectionHeader
+     * Creates a new instance of SectionHeader
      *
      * @param baseoffset offset of this section header
      */
-    public PESectionHeader(long baseoffset) {
+    public SectionHeader(long baseoffset) {
         m_baseoffset = baseoffset;
     }
 
     /**
-     * Creates a new instance of PESectionHeader.
+     * Creates a new instance of SectionHeader.
      * 
      * @param name name of the section (no more than 8 ANSI characters)
      */
-    public PESectionHeader(String name) {
+    public SectionHeader(String name) {
         this.ANSI_Name = new byte[8];
         byte[] bytes = name.getBytes();
         System.arraycopy(bytes, 0, this.ANSI_Name, 0,

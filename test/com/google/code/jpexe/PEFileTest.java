@@ -90,7 +90,7 @@ public class PEFileTest {
         data.position(0);
         fis.close();
 
-        PEResourceDirectory resdir = pe.getResourceDirectory();
+        ResourceDirectory resdir = pe.getResourceDirectory();
         //	boolean resb = resdir.replaceResource("JAVA", 103, 1033, data);
 
         //	String mainclassname = "net.charabia.generation.application.Application";
@@ -104,7 +104,7 @@ public class PEFileTest {
         //	bcn.position(0);
         //	resb = resdir.replaceResource("JAVA", 102, 1033, bcn);
 
-        //	PEResourceDirectory.DataEntry entry = resdir.getData("#14", "A", "#1033");
+        //	ResourceDirectory.DataEntry entry = resdir.getData("#14", "A", "#1033");
         //	entry.Data.position(0);
         //	System.out.println("DataEntry found : " + entry + " (size=" + entry.Data.remaining() + ")");
         //	entry.Data.position(0);
@@ -115,7 +115,7 @@ public class PEFileTest {
         //	int iconid = rid.getEntries()[0].dwImageOffset;
         //	System.out.println("Icon Index: " + iconid);
         //
-        //	PEResourceDirectory.DataEntry iconentry = resdir.getData("#3", "#"+iconid, "#1033");
+        //	ResourceDirectory.DataEntry iconentry = resdir.getData("#3", "#"+iconid, "#1033");
         //	iconentry.Data.position(0);
         //	ResIcon icon = new ResIcon(iconentry.Data);
         //	System.out.println("Icon :");

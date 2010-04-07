@@ -13,7 +13,7 @@ public  class ResourceEntry {
     public String Name;
     public ImageResourceDirectory Directory;
     public ResourceDataEntry Data;
-    private PEResourceDirectory PEResourceDirectory_this;
+    private ResourceDirectory PEResourceDirectory_this;
 
     public ResourceEntry(int id, ResourceDataEntry data) {
         this.Id = id;

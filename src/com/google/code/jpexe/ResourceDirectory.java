@@ -26,7 +26,7 @@ import java.nio.channels.*;
 /**
  * Navigable directory in the resource section in a PE.
  */
-public class PEResourceDirectory implements BinaryRecord {
+public class ResourceDirectory implements BinaryRecord {
     public long offset;
 
     public long virtualBaseOffset;
@@ -36,11 +36,11 @@ public class PEResourceDirectory implements BinaryRecord {
     ImageResourceDirectory m_root;
 
     /**
-     * Creates a new instance of PEResourceDirectory
+     * Creates a new instance of ResourceDirectory
      *
      * @param offset offset in the file
      */
-    public PEResourceDirectory(long offset, long virtualBaseOffset,
+    public ResourceDirectory(long offset, long virtualBaseOffset,
             long pointerToRawData, long virtualAddress) {
         this.offset = offset;
         this.virtualBaseOffset = virtualBaseOffset;
