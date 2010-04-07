@@ -175,8 +175,8 @@ public class ResourceEntry implements BinaryRecord {
             buffer.putInt(dataOffset);
             int oldpos = buffer.position();
             buffer.position(dataOffset);
-            dataOffset = Data.buildBuffer(buffer, virtualBaseOffset,
-                    dataOffset);
+            /* todo dataOffset = Data.buildBuffer(buffer, virtualBaseOffset,
+                    dataOffset);*/
             buffer.position(oldpos);
         } else {
             throw new RuntimeException("Directory and Data are both null!");
@@ -210,7 +210,7 @@ public class ResourceEntry implements BinaryRecord {
             // TODO setData?
             buf.position((int) orgpos);
         } else {
-            Data = new ResourceDataEntry(buf/* todo, offsetToData*/);
+            // TODO Data = new ResourceDataEntry(buf/* todo, offsetToData*/);
         }
     }
 }

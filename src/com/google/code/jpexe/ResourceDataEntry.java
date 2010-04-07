@@ -22,30 +22,17 @@ package com.google.code.jpexe;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 
-public class ResourceDataEntry {
+/**
+ * Data for a resource entry.
+ */
+public class ResourceDataEntry implements BinaryRecord {
+    private long location;
+
     long OffsetToData; // To update at each change
     long Size;
     long CodePage; // never changed
     long Reserved; // never changed
     ByteBuffer Data;
-
-    public ResourceDataEntry(ByteBuffer buf) {
-        OffsetToData = buf.getInt();
-        Size = buf.getInt();
-        CodePage = buf.getInt();
-        Reserved = buf.getInt();
-        /* todo
-        long datapos = PEResourceDirectory.this.pointerToRawData + (OffsetToData
-        - PEResourceDirectory.this.virtualAddress);
-        Data = ByteBuffer.allocate((int) Size);
-        Data.order(ByteOrder.LITTLE_ENDIAN);
-        chan.position(datapos);
-        chan.read(Data);
-        Data.position(0);
-        chan.position(orgpos);
-         *
-         */
-    }
 
     public int diskSize() {
         int size = 16 + (int) this.Size;
@@ -80,8 +67,39 @@ public class ResourceDataEntry {
         }
     }
 
-    public int buildBuffer(ByteBuffer buffer, long virtualBaseOffset,
-            int dataOffset) {
+    public void setData(ByteBuffer data) {
+        Data = data;
+        Size = data.capacity();
+        ByteBuffer buf = data;
+        OffsetToData = buf.getInt();
+        Size = buf.getInt();
+        CodePage = buf.getInt();
+        Reserved = buf.getInt();
+        /* todo
+        long datapos = PEResourceDirectory.this.pointerToRawData + (OffsetToData
+        - PEResourceDirectory.this.virtualAddress);
+        Data = ByteBuffer.allocate((int) Size);
+        Data.order(ByteOrder.LITTLE_ENDIAN);
+        chan.position(datapos);
+        chan.read(Data);
+        Data.position(0);
+        chan.position(orgpos);
+         *
+         */
+    }
+
+    public long getLocation() {
+        return location;
+    }
+
+    public void setLocation(long location) {
+        this.location = location;
+    }
+
+    public ByteBuffer getData() {
+        ByteBuffer buffer = ByteBuffer.allocate(100); // TODO
+        long virtualBaseOffset = 0; // TODO
+        int dataOffset = 0; // TODO
         //			System.out.println("Building Data Entry buffer @ " + buffer.position() + " (" + dataOffset + ")");
         dataOffset = buffer.position() + 16;
         buffer.putInt((int) (dataOffset + virtualBaseOffset));
@@ -94,11 +112,6 @@ public class ResourceDataEntry {
         if ((dataOffset % 4) > 0) {
             dataOffset += (4 - (dataOffset % 4));
         }
-        return dataOffset;
-    }
-
-    public void setData(ByteBuffer data) {
-        Data = data;
-        Size = data.capacity();
+        return buffer;
     }
 }
