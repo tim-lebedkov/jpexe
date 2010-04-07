@@ -11,9 +11,9 @@ import java.nio.ByteOrder;
 public  class ResourceEntry {
     public int Id;
     public String Name;
-    public ImageResourceDirectory Directory;
+    public ResourceDirectory Directory;
     public ResourceDataEntry Data;
-    private ImageResourceDirectory PEResourceDirectory_this;
+    private ResourceDirectory PEResourceDirectory_this;
 
     public ResourceEntry(int id, ResourceDataEntry data) {
         this.Id = id;
@@ -25,12 +25,12 @@ public  class ResourceEntry {
         this.Data = data;
     }
 
-    public ResourceEntry(int id, ImageResourceDirectory dir) {
+    public ResourceEntry(int id, ResourceDirectory dir) {
         this.Id = id;
         this.Directory = dir;
     }
 
-    public ResourceEntry(String name, ImageResourceDirectory dir) {
+    public ResourceEntry(String name, ResourceDirectory dir) {
         this.Name = name;
         this.Directory = dir;
     }
@@ -56,7 +56,7 @@ public  class ResourceEntry {
             long orgpos = buf.position();
             /*buf.position((int) (PEResourceDirectory_this.offset +
                     offsetToData)); todo */
-            Directory = new ImageResourceDirectory(buf);
+            Directory = new ResourceDirectory(buf);
             buf.position((int) orgpos);
         } else {
             Data = new ResourceDataEntry(buf/* todo, offsetToData*/);

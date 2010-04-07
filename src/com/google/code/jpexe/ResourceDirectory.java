@@ -6,7 +6,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ImageResourceDirectory {
+public class ResourceDirectory {
     long Characteristics; // uint32_t
     public long TimeDateStamp; // uint32_t
     int MajorVersion; // uint16_t
@@ -18,7 +18,7 @@ public class ImageResourceDirectory {
     List<ResourceEntry> IdEntries =
             new ArrayList<ResourceEntry>();
 
-    public ImageResourceDirectory(ByteBuffer header) {
+    public ResourceDirectory(ByteBuffer header) {
         Characteristics = header.getInt();
         TimeDateStamp = header.getInt();
         MajorVersion = header.getShort();

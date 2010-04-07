@@ -49,7 +49,7 @@ public class PEFile {
 
     private List<SectionHeader> sections = new ArrayList<SectionHeader>();
 
-    private ImageResourceDirectory resourceDir;
+    private ResourceDirectory resourceDir;
 
     /**
      * Creates a new instance of PEFile
@@ -112,7 +112,7 @@ public class PEFile {
             SectionHeader sect = sections.get(i);
             if (sect.VirtualAddress == resourceoffset) {
                 // TODO
-                ImageResourceDirectory prd = new ImageResourceDirectory(null);
+                ResourceDirectory prd = new ResourceDirectory(null);
                 // TODO resbuf = prd.buildResource(sect.VirtualAddress);
                 break;
             }
@@ -128,7 +128,7 @@ public class PEFile {
      *
      * @return resource directory or null if it does not exist
      */
-    public ImageResourceDirectory getResourceDirectory() {
+    public ResourceDirectory getResourceDirectory() {
         if (resourceDir != null) {
             return resourceDir;
         }
@@ -137,7 +137,7 @@ public class PEFile {
         for (int i = 0; i < sections.size(); i++) {
             SectionHeader sect = sections.get(i);
             if (sect.VirtualAddress == resourceoffset) {
-                resourceDir = new ImageResourceDirectory(null);
+                resourceDir = new ResourceDirectory(null);
                 mbb.position((int) sect.PointerToRawData);
                 // TODO resourceDir.setData(mbb);
                 return resourceDir;
@@ -227,7 +227,7 @@ public class PEFile {
                 // System.out.println("Dumping RES section " + i + " at " + offset + " from " + sect.PointerToRawData + " (VA=" + virtualAddress + ")");
                 out.position(offset);
                 long sectoffset = offset;
-                ImageResourceDirectory prd = this.getResourceDirectory();
+                ResourceDirectory prd = this.getResourceDirectory();
                 ByteBuffer resbuf = null; // TODO prd.buildResource(
                         // TODO sect.VirtualAddress);
                 resbuf.position(0);
@@ -392,14 +392,14 @@ public class PEFile {
             String languageId, ByteBuffer data) {
         DataEntry dataEntry = new DataEntry(data);
         ResourceEntry languageEntry = buildResourceEntry(languageId, dataEntry);
-        ImageResourceDirectory languageDir = new ImageResourceDirectory();
+        ResourceDirectory languageDir = new ResourceDirectory();
 
         languageDir.TimeDateStamp = 0x3F2CCF64;
         languageDir.addEntry(languageEntry);
 
         ResourceEntry identEntry = buildResourceEntry(resourceId, languageDir);
 
-        ImageResourceDirectory identDir = new ImageResourceDirectory();
+        ResourceDirectory identDir = new ResourceDirectory();
         identDir.TimeDateStamp = 0x3F2CCF64;
         identDir.addEntry(identEntry);
 
@@ -438,7 +438,7 @@ public class PEFile {
     }
 
     public ResourceEntry buildResourceEntry(String id,
-            ImageResourceDirectory dir) {
+            ResourceDirectory dir) {
         if ((id.length() > 1) && (id.charAt(0) == '#')) {
             int intid = Integer.parseInt(id.substring(1));
             return new ResourceEntry(intid, dir);
@@ -448,7 +448,7 @@ public class PEFile {
     }
 
     public ResourceEntry buildResourceEntry(int id,
-            ImageResourceDirectory dir) {
+            ResourceDirectory dir) {
         return new ResourceEntry(id, dir);
     }*/
 }
