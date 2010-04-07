@@ -343,7 +343,7 @@ public class PEFile {
      * @param icon new icon
      * @throws Exception if no icon exist in the .exe
      */
-    public void replaceDefaultIcon(ResIcon icon) throws Exception {
+    /*public void replaceDefaultIcon(ResIcon icon) throws Exception {
         ResourceDirectory resdir = getResourceDirectory();
 
         ResourceDataEntry entry = resdir.getData("#14", null, null);
@@ -371,5 +371,89 @@ public class PEFile {
         iconentry.Size = iconentry.Data.remaining();
 
         entry.setData(rid.getData());
+    }*/
+
+/*
+    public boolean replaceResource(String catId, int resourceId, int langId,
+            ByteBuffer data) {
+        ResourceEntry catEntry = m_root.getResourceEntry(catId);
+        if ((catEntry != null) && (catEntry.Directory != null)) {
+            ResourceEntry identEntry = catEntry.Directory.getResourceEntry(
+                    resourceId);
+            if ((identEntry != null) && (identEntry.Directory != null)) {
+                ResourceEntry langEntry = identEntry.Directory.getResourceEntry(
+                        langId);
+                if ((langEntry != null) && (langEntry.Data != null)) {
+                    ResourceDataEntry dataslot = langEntry.Data;
+                    dataslot.setData(data);
+                    return true;
+                }
+            }
+        }
+        return false;
     }
+/*
+    public void addNewResource(String catId, String resourceId,
+            String languageId, ByteBuffer data) {
+        DataEntry dataEntry = new DataEntry(data);
+        ResourceEntry languageEntry = buildResourceEntry(languageId, dataEntry);
+        ImageResourceDirectory languageDir = new ImageResourceDirectory();
+
+        languageDir.TimeDateStamp = 0x3F2CCF64;
+        languageDir.addEntry(languageEntry);
+
+        ResourceEntry identEntry = buildResourceEntry(resourceId, languageDir);
+
+        ImageResourceDirectory identDir = new ImageResourceDirectory();
+        identDir.TimeDateStamp = 0x3F2CCF64;
+        identDir.addEntry(identEntry);
+
+        ResourceEntry catEntry = buildResourceEntry(catId, identDir);
+        m_root.addEntry(catEntry);
+    }
+
+    public ResourceDataEntry getData(String catId, String resourceId, String langId) {
+        ResourceEntry catEntry = m_root.getResourceEntry(catId);
+        if ((catEntry != null) && (catEntry.Directory != null)) {
+            ResourceEntry identEntry = catEntry.Directory.getResourceEntry(
+                    resourceId);
+            if ((identEntry != null) && (identEntry.Directory != null)) {
+                ResourceEntry langEntry = identEntry.Directory.getResourceEntry(
+                        langId);
+                if ((langEntry != null) && (langEntry.Data != null)) {
+                    ResourceDataEntry dataslot = langEntry.Data;
+                    return dataslot;
+                }
+            }
+        }
+        return null;
+    }
+
+    public ResourceEntry buildResourceEntry(String id, ResourceDataEntry data) {
+        if ((id.length() > 1) && (id.charAt(0) == '#')) {
+            int intid = Integer.parseInt(id.substring(1));
+            return new ResourceEntry(intid, data);
+        }
+
+        return new ResourceEntry(id, data);
+    }
+
+    public ResourceEntry buildResourceEntry(int id, ResourceDataEntry data) {
+        return new ResourceEntry(id, data);
+    }
+
+    public ResourceEntry buildResourceEntry(String id,
+            ImageResourceDirectory dir) {
+        if ((id.length() > 1) && (id.charAt(0) == '#')) {
+            int intid = Integer.parseInt(id.substring(1));
+            return new ResourceEntry(intid, dir);
+        }
+
+        return new ResourceEntry(id, dir);
+    }
+
+    public ResourceEntry buildResourceEntry(int id,
+            ImageResourceDirectory dir) {
+        return new ResourceEntry(id, dir);
+    }*/
 }

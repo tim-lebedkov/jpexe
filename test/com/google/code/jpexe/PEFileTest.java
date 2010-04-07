@@ -62,7 +62,7 @@ public class PEFileTest {
         pef.close();
     }
 
-    public static void main(String args[]) throws IOException,
+    /* todo public static void main(String args[]) throws IOException,
             CloneNotSupportedException, Exception {
         //(no)PEFile pe = new PEFile(new File("F:/Program Files/LAN Search PRO/lansearch.exe"));
 
@@ -180,5 +180,5 @@ public class PEFileTest {
         pe.dumpTo(out);
 
 
-    }
+    }*/
 }
