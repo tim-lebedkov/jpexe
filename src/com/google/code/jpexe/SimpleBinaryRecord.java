@@ -52,7 +52,4 @@ public class SimpleBinaryRecord implements BinaryRecord {
     public void setData(ByteBuffer data) {
         data.get(this.data.array());
     }
-
-    public void materialize(Map<String, Object> lookup) {
-    }
 }

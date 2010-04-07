@@ -168,7 +168,4 @@ public class OldMSHeader implements Cloneable, BinaryRecord {
         throw new IllegalArgumentException(
                 "MSDOS 2.0 exe header is always at the offset 0");
     }
-
-    public void materialize(Map<String, Object> lookup) {
-    }
 }

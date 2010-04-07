@@ -25,6 +25,7 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
+import java.util.StringTokenizer;
 
 /**
  * List of resources.
@@ -32,16 +33,16 @@ import java.util.Map;
 public class ResourceDirectory implements BinaryRecord {
     private long location;
 
-    long characteristics; // uint32_t
+    public long characteristics; // uint32_t
     public long timeDateStamp; // uint32_t
-    int majorVersion; // uint16_t
-    int minorVersion; // uint16_t
+    public int majorVersion; // uint16_t
+    public int minorVersion; // uint16_t
     // int NumberOfNamedEntries; // uint16_t
     // int NumberOfIdEntries; // uint16_t
 
-    List<ResourceEntry> namedEntries =
+    private List<ResourceEntry> namedEntries =
             new ArrayList<ResourceEntry>();
-    List<ResourceEntry> idEntries =
+    private List<ResourceEntry> idEntries =
             new ArrayList<ResourceEntry>();
 
     public void addNamedEntry(ResourceEntry entry) {
@@ -119,7 +120,7 @@ public class ResourceDirectory implements BinaryRecord {
     public ResourceEntry getResourceEntry(String name) {
         // If name == null, get the first entry in lexical
         // order. If no entry in lexical order, choose the
-        // lowest integer id entry.
+        // lowest integer nameOrId entry.
         if (name == null) {
             if (namedEntries.size() > 0) {
                 return namedEntries.get(0);
@@ -152,7 +153,7 @@ public class ResourceDirectory implements BinaryRecord {
         for (Iterator<ResourceEntry> i =
                 this.idEntries.iterator(); i.hasNext();) {
             ResourceEntry re = i.next();
-            /* todo if (id == re.ResourceEntry.this.id) {
+            /* todo if (nameOrId == re.ResourceEntry.this.nameOrId) {
                 return re;
             }*/
         }
@@ -168,17 +169,14 @@ public class ResourceDirectory implements BinaryRecord {
     }
 
     public ByteBuffer getData() {
-        long virtualBaseOffset = 100; // TODO
         ByteBuffer buffer = ByteBuffer.allocate(100); // TODO
-        //			System.out.println("Building directory Entry buffer @ " + buffer.position());
         buffer.putInt((int) this.characteristics);
         buffer.putInt((int) this.timeDateStamp);
         buffer.putShort((short) this.majorVersion);
         buffer.putShort((short) this.minorVersion);
         buffer.putShort((short) this.namedEntries.size());
         buffer.putShort((short) this.idEntries.size());
-        int dataOffset =
-                buffer.position() + (namedEntries.size() * 8) +
+        int dataOffset = buffer.position() + (namedEntries.size() * 8) +
                 (idEntries.size() * 8);
         for (int i = 0; i < this.namedEntries.size();
                 i++) {
@@ -199,38 +197,49 @@ public class ResourceDirectory implements BinaryRecord {
         timeDateStamp = header.getInt();
         majorVersion = header.getShort();
         minorVersion = header.getShort();
-        short NumberOfNamedEntries = header.getShort();
-        short NumberOfIdEntries = header.getShort();
-        for (int i = 0; i < NumberOfNamedEntries;
-                i++) {
+        short numberOfNamedEntries = header.getShort();
+        short numberOfIdEntries = header.getShort();
+        for (int i = 0; i < numberOfNamedEntries; i++) {
             ResourceEntry re = new ResourceEntry();
             re.setData(header);
             namedEntries.add(re);
         }
-        for (int i = 0; i < NumberOfIdEntries;
-                i++) {
+        for (int i = 0; i < numberOfIdEntries; i++) {
             ResourceEntry re = new ResourceEntry();
             re.setData(header);
             idEntries.add(re);
         }
     }
 
-    public void materialize(Map<String, Object> lookup) {
+    /**
+     * Loads all dependant objects so that the file can be closed and re-created
+     * only from the data in memory.
+     *
+     * @param buf file. The position of the buffer will not change.
+     * @param resourceSectionOffset offset of the resource section
+     */
+    public void materialize(ByteBuffer buf, int resourceSectionOffset) {
+        for (ResourceEntry re : namedEntries) {
+            re.materialize(buf, resourceSectionOffset);
+        }
+        for (ResourceEntry re : this.idEntries) {
+            re.materialize(buf, resourceSectionOffset);
+        }
     }
-    
+
     /**
      * Returns an entry with the specified ID. Creates a new entry if it
      * does not exist
      *
-     * @param id ID of the entry
+     * @param nameOrId ID of the entry
      * @return entry with the specified ID (without any data or
      *     subdirectory)
      */
     /* todo
-    public ResourceEntry getOrCreateResourceEntry(int id) {
-    ResourceEntry r = getResourceEntry(id);
+    public ResourceEntry getOrCreateResourceEntry(int nameOrId) {
+    ResourceEntry r = getResourceEntry(nameOrId);
     if (r == null) {
-    r = buildResourceEntry(id, (DataEntry) null);
+    r = buildResourceEntry(nameOrId, (DataEntry) null);
     addEntry(r);
     }
     return r;
@@ -239,15 +248,15 @@ public class ResourceDirectory implements BinaryRecord {
      * Returns an entry with the specified ID. Creates a new entry if it
      * does not exist
      *
-     * @param id ID of the entry
+     * @param nameOrId ID of the entry
      * @return entry with the specified ID (without any data or
      *     subdirectory)
      */
     /* todo
-    public ResourceEntry getOrCreateResourceEntry(int id) {
-    ResourceEntry r = getResourceEntry(id);
+    public ResourceEntry getOrCreateResourceEntry(int nameOrId) {
+    ResourceEntry r = getResourceEntry(nameOrId);
     if (r == null) {
-    r = buildResourceEntry(id, (DataEntry) null);
+    r = buildResourceEntry(nameOrId, (DataEntry) null);
     addEntry(r);
     }
     return r;

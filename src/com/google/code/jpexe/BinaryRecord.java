@@ -65,18 +65,4 @@ public interface BinaryRecord {
      * @param data binary data
      */
     public void setData(ByteBuffer data);
-
-    /**
-     * Forces the objects to read all dependant objects into memory. For
-     * example, strings are often stored separately and only string offset
-     * is read during {@link #setData(java.nio.ByteBuffer)}, but this method
-     * also ready the string data from the file. After calling this method
-     * the underlying file could be closed and re-created using getData()
-     * methods.
-     *
-     * @param lookup sometimes dependant objects rely on some data to be
-     *     provided by the object that holds the reference. This is a generic
-     *     storage for this data.
-     */
-    public void materialize(Map<String, Object> lookup);
 }

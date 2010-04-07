@@ -115,7 +115,4 @@ public class ResourceDataEntry implements BinaryRecord {
         }
         return buffer;
     }
-
-    public void materialize(Map<String, Object> lookup) {
-    }
 }

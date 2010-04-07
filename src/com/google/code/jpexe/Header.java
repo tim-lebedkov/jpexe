@@ -514,7 +514,4 @@ public class Header implements Cloneable, BinaryRecord {
                     "PE header location must be aligned on 8 byte boundary");
         this.location = location;
     }
-
-    public void materialize(Map<String, Object> lookup) {
-    }
 }

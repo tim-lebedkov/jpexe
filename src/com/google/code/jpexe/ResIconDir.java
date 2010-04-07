@@ -86,7 +86,4 @@ public class ResIconDir implements BinaryRecord {
             entries[i] = new IconDirEntry(buf);
         }
     }
-
-    public void materialize(Map<String, Object> lookup) {
-    }
 }

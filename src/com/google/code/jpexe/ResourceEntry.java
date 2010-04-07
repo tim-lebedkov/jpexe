@@ -30,11 +30,12 @@ import java.util.Map;
 public class ResourceEntry implements BinaryRecord {
     private long location;
 
-    public int id;
+    public int nameOrId;
+    public int dataOrDirectory;
+
     public String name;
     public ResourceDirectory directory;
     public ResourceDataEntry data;
-    private ResourceDirectory resourceDirectory_this;
 
     /**
      * Default constructor can be used to read the data from a ByteBuffer
@@ -43,7 +44,7 @@ public class ResourceEntry implements BinaryRecord {
     }
 
     public ResourceEntry(int id, ResourceDataEntry data) {
-        this.id = id;
+        this.nameOrId = id;
         this.data = data;
     }
 
@@ -53,7 +54,7 @@ public class ResourceEntry implements BinaryRecord {
     }
 
     public ResourceEntry(int id, ResourceDirectory dir) {
-        this.id = id;
+        this.nameOrId = id;
         this.directory = dir;
     }
 
@@ -85,7 +86,7 @@ public class ResourceEntry implements BinaryRecord {
         if (this.name != null) {
             out.println("Name=" + name);
         } else {
-            out.println("Id=#" + id);
+            out.println("Id=#" + nameOrId);
         }
 
         indent(level, out);
@@ -137,7 +138,7 @@ public class ResourceEntry implements BinaryRecord {
             }
             buffer.position((int) oldpos);
         } else {
-            buffer.putInt(id);
+            buffer.putInt(nameOrId);
         }
 
         if (directory != null) {
@@ -164,9 +165,22 @@ public class ResourceEntry implements BinaryRecord {
     }
 
     public void setData(ByteBuffer buf) {
-        int val = buf.getInt();
-        long offsetToData = buf.getInt();
+        nameOrId = buf.getInt();
+        dataOrDirectory = buf.getInt();
+    }
 
+    /**
+     * Loads all dependant objects so that the file can be closed and re-created
+     * only from the data in memory.
+     *
+     * @param buf file. The position of the buffer will not change.
+     * @param resourceSectionOffset offset of the resource section
+     */
+    public void materialize(ByteBuffer buf, int resourceSectionOffset) {
+        int oldPos_ = buf.position();
+
+        int val = nameOrId;
+        int offsetToData = dataOrDirectory;
         if (val < 0) {
             val &= 0x7FFFFFFF;
             int oldPos = buf.position();
@@ -175,29 +189,26 @@ public class ResourceEntry implements BinaryRecord {
             us.setData(buf);
             this.name = us.getText();
             buf.position(oldPos);
-            id = -1;
+            nameOrId = -1;
         } else {
-            id = val;
+            nameOrId = val;
         }
 
         if (offsetToData < 0) {
             offsetToData &= 0x7FFFFFFF;
             long oldPos = buf.position();
-            buf.position((int) offsetToData);
-            /* buf.position((int) (esourceDirectory_this.offset +
-                    offsetToData)); todo */
+            buf.position(offsetToData + resourceSectionOffset);
             directory = new ResourceDirectory();
             directory.setData(buf);
             buf.position((int) oldPos);
         } else {
             data = new ResourceDataEntry();
             int oldPos = buf.position();
-            buf.position((int) offsetToData);
+            buf.position(offsetToData + resourceSectionOffset);
             data.setData(buf);
             buf.position(oldPos);
         }
-    }
 
-    public void materialize(Map<String, Object> lookup) {
+        buf.position(oldPos_);
     }
 }

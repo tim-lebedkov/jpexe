@@ -70,7 +70,4 @@ public class UnicodeString implements BinaryRecord {
     public String getText() {
         return this.data;
     }
-
-    public void materialize(Map<String, Object> lookup) {
-    }
 }

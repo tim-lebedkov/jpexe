@@ -50,7 +50,10 @@ public class PEFileTest {
     public void resourceDirectory() throws IOException {
         PEFile pef = new PEFile(new File("test/7zFM.exe"));
         pef.open();
-        assertNotNull(pef.getResourceDirectory());
+        final ResourceDirectory rd = pef.getResourceDirectory();
+        assertNotNull(rd);
+        pef.getResourceDirectory().materialize(pef.getByteBuffer(),
+                pef.header.resourceDirectory_VA);
         pef.close();
     }
 

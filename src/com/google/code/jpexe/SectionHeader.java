@@ -175,7 +175,4 @@ public class SectionHeader implements Cloneable, BinaryRecord {
     public void setLocation(long location) {
         this.m_baseoffset = location;
     }
-
-    public void materialize(Map<String, Object> lookup) {
-    }
 }

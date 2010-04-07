@@ -333,6 +333,13 @@ public class PEFile {
     }
 
     /**
+     * @return file content
+     */
+    public ByteBuffer getByteBuffer() {
+        return mbb;
+    }
+
+    /**
      * Replaces default .exe icon.
      *
      * @param icon new icon
