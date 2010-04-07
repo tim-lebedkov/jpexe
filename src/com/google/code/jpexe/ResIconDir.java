@@ -24,85 +24,13 @@ import java.nio.*;
 /**
  * Directory of icons in the resource section ?
  */
-public class ResIconDir {
+public class ResIconDir implements BinaryRecord {
+    private long location;
 
     private int m_idReserved;   // Reserved (must be 0)
     private int m_idType;       // Resource Type (1 for icons)
     private int m_idCount;      // How many images?
     private IconDirEntry[] m_entries;
-
-    public static class IconDirEntry {
-
-        public short bWidth;          // Width, in pixels, of the image
-        public short bHeight;         // Height, in pixels, of the image
-        public short bColorCount;     // Number of colors in image (0 if >=8bpp)
-        public short bReserved;       // Reserved ( must be 0)
-        public int wPlanes;         // Color Planes
-        public int wBitCount;       // Bits per pixel
-        public long dwBytesInRes;    // How many bytes in this resource?
-        public int dwImageOffset;   // Where in the file is this image?
-
-        public IconDirEntry(ByteBuffer buf) {
-            bWidth = buf.get();
-            bHeight = buf.get();
-            bColorCount = buf.get();
-            bReserved = buf.get();
-            wPlanes = buf.getShort();
-            wBitCount = buf.getShort();
-            dwBytesInRes = buf.getInt();
-            dwImageOffset = buf.getShort();
-        }
-
-        public ByteBuffer getData() {
-            ByteBuffer buf = ByteBuffer.allocate(16);
-            buf.order(ByteOrder.LITTLE_ENDIAN);
-            buf.position(0);
-
-            buf.put((byte) bWidth);
-            buf.put((byte) bHeight);
-            buf.put((byte) bColorCount);
-            buf.put((byte) bReserved);
-
-            buf.putShort((short) wPlanes);
-            buf.putShort((short) wBitCount);
-
-            buf.putInt((int) dwBytesInRes);
-            buf.putShort((short) dwImageOffset);
-
-            buf.position(0);
-            return buf;
-        }
-
-        public String toString() {
-            StringBuffer out = new StringBuffer();
-            out.append("bWidth: " + bWidth + "\n");          // Width, in pixels, of the image
-            out.append("bHeight: " + bHeight + "\n");         // Height, in pixels, of the image
-            out.append("bColorCount: " + bColorCount + "\n");     // Number of colors in image (0 if >=8bpp)
-            out.append("bReserved: " + bReserved + "\n");       // Reserved ( must be 0)
-            out.append("wPlanes: " + wPlanes + "\n");         // Color Planes
-            out.append("wBitCount: " + wBitCount + "\n");       // Bits per pixel
-            out.append("dwBytesInRes: " + dwBytesInRes + "\n");    // How many bytes in this resource?
-            out.append("dwImageOffset: " + dwImageOffset + "\n");   // Where in the file is this image?
-
-            return out.toString();
-        }
-    }
-
-    /**
-     * Creates a new instance of ResIconDir
-     *
-     * @param buf content
-     */
-    public ResIconDir(ByteBuffer buf) {
-        m_idReserved = buf.getShort();
-        m_idType = buf.getShort();
-        m_idCount = buf.getShort();
-
-        m_entries = new ResIconDir.IconDirEntry[m_idCount];
-        for (int i = 0; i < m_idCount; i++) {
-            m_entries[i] = new IconDirEntry(buf);
-        }
-    }
 
     public ByteBuffer getData() {
         ByteBuffer buf = ByteBuffer.allocate(6 + (16 * m_idCount));
@@ -122,7 +50,7 @@ public class ResIconDir {
         return buf;
     }
 
-    public ResIconDir.IconDirEntry[] getEntries() {
+    public IconDirEntry[] getEntries() {
         return m_entries;
     }
 
@@ -137,5 +65,24 @@ public class ResIconDir {
         }
 
         return out.toString();
+    }
+
+    public long getLocation() {
+        return location;
+    }
+
+    public void setLocation(long location) {
+        this.location = location;
+    }
+
+    public void setData(ByteBuffer buf) {
+        m_idReserved = buf.getShort();
+        m_idType = buf.getShort();
+        m_idCount = buf.getShort();
+
+        m_entries = new IconDirEntry[m_idCount];
+        for (int i = 0; i < m_idCount; i++) {
+            m_entries[i] = new IconDirEntry(buf);
+        }
     }
 }

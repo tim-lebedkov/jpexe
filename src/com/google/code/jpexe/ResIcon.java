@@ -26,7 +26,8 @@ import java.awt.image.*;
 /**
  * Icon in the resource section of a PE?
  */
-public class ResIcon {
+public class ResIcon implements BinaryRecord {
+    private long location;
 
     public long Size;            /* Size of this header in bytes DWORD*/
 
@@ -55,24 +56,15 @@ public class ResIcon {
     public short[] BitmapXOR;
     public short[] BitmapAND;
 
-    public class PaletteElement {
-
-        public int Blue;
-        public int Green;
-        public int Red;
-        public int Reserved;
-
-        public String toString() {
-            return "{" + Blue + "," + Green + "," + Red + "," + Reserved + "}";
-        }
+    public long getLocation() {
+        return location;
     }
 
-    /** 
-     * Creates a new instance of ResIcon 
-     * @see
-     * @param in
-     */
-    public ResIcon(ByteBuffer in) {
+    public void setLocation(long location) {
+        this.location = location;
+    }
+
+    public void setData(ByteBuffer in) {
         Size = in.getInt();
         Width = in.getInt();
         Height = in.getInt();
@@ -136,7 +128,18 @@ public class ResIcon {
         for (int i = 0; i < BitmapAND.length; i++) {
             BitmapAND[i] = in.get();
         }
+    }
 
+    public class PaletteElement {
+
+        public int Blue;
+        public int Green;
+        public int Red;
+        public int Reserved;
+
+        public String toString() {
+            return "{" + Blue + "," + Green + "," + Red + "," + Reserved + "}";
+        }
     }
 
     /** Creates a new instance based on the data of the Image argument.
@@ -297,8 +300,9 @@ public class ResIcon {
         return result;
     }
 
-    private Hashtable calculateColorCount(int[] pixels) {
-        Hashtable result = new Hashtable();
+    private Hashtable<Integer, Integer> calculateColorCount(int[] pixels) {
+        Hashtable<Integer, Integer> result =
+                new Hashtable<Integer, Integer>();
         int colorindex = 0;
         for (int i = 0; i < pixels.length; i++) {
             int pix = pixels[i];
@@ -316,8 +320,10 @@ public class ResIcon {
         return result;
     }
 
-    /** Creates and returns a ByteBuffer containing an image under
+    /**
+     * Creates and returns a ByteBuffer containing an image under
      * the .ico format expected by Windows.
+     *
      * @return a ByteBuffer with the .ico data
      */
     public ByteBuffer getData() {
