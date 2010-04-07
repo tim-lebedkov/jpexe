@@ -13,7 +13,7 @@ public  class ResourceEntry {
     public String Name;
     public ImageResourceDirectory Directory;
     public ResourceDataEntry Data;
-    private ResourceDirectory PEResourceDirectory_this;
+    private ImageResourceDirectory PEResourceDirectory_this;
 
     public ResourceEntry(int id, ResourceDataEntry data) {
         this.Id = id;
@@ -54,8 +54,8 @@ public  class ResourceEntry {
         if (offsetToData < 0) {
             offsetToData &= 0x7FFFFFFF;
             long orgpos = buf.position();
-            buf.position((int) (PEResourceDirectory_this.offset +
-                    offsetToData));
+            /*buf.position((int) (PEResourceDirectory_this.offset +
+                    offsetToData)); todo */
             Directory = new ImageResourceDirectory(buf);
             buf.position((int) orgpos);
         } else {
@@ -65,7 +65,7 @@ public  class ResourceEntry {
 
     public String extractStringAt(ByteBuffer chan, int offset) {
         long orgchanpos = chan.position();
-        chan.position((int) (PEResourceDirectory_this.offset + offset));
+        // TODO chan.position((int) (PEResourceDirectory_this.offset + offset));
 
         /* todo
         ByteBuffer sizebuf = ByteBuffer.allocate(2);

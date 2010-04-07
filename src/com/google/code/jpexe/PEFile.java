@@ -49,7 +49,7 @@ public class PEFile {
 
     private List<SectionHeader> sections = new ArrayList<SectionHeader>();
 
-    private ResourceDirectory resourceDir;
+    private ImageResourceDirectory resourceDir;
 
     /**
      * Creates a new instance of PEFile
@@ -112,9 +112,7 @@ public class PEFile {
             SectionHeader sect = sections.get(i);
             if (sect.VirtualAddress == resourceoffset) {
                 // TODO
-                ResourceDirectory prd = new ResourceDirectory(
-                        sect.PointerToRawData, sect.VirtualAddress,
-                        sect.PointerToRawData, sect.VirtualAddress);
+                ImageResourceDirectory prd = new ImageResourceDirectory(null);
                 // TODO resbuf = prd.buildResource(sect.VirtualAddress);
                 break;
             }
@@ -130,7 +128,7 @@ public class PEFile {
      *
      * @return resource directory or null if it does not exist
      */
-    public ResourceDirectory getResourceDirectory() {
+    public ImageResourceDirectory getResourceDirectory() {
         if (resourceDir != null) {
             return resourceDir;
         }
@@ -139,12 +137,9 @@ public class PEFile {
         for (int i = 0; i < sections.size(); i++) {
             SectionHeader sect = sections.get(i);
             if (sect.VirtualAddress == resourceoffset) {
-                resourceDir = new ResourceDirectory(
-                        sect.PointerToRawData, sect.VirtualAddress,
-                        sect.PointerToRawData,
-                        sect.VirtualAddress);
+                resourceDir = new ImageResourceDirectory(null);
                 mbb.position((int) sect.PointerToRawData);
-                resourceDir.setData(mbb);
+                // TODO resourceDir.setData(mbb);
                 return resourceDir;
             }
         }
@@ -232,7 +227,7 @@ public class PEFile {
                 // System.out.println("Dumping RES section " + i + " at " + offset + " from " + sect.PointerToRawData + " (VA=" + virtualAddress + ")");
                 out.position(offset);
                 long sectoffset = offset;
-                ResourceDirectory prd = this.getResourceDirectory();
+                ImageResourceDirectory prd = this.getResourceDirectory();
                 ByteBuffer resbuf = null; // TODO prd.buildResource(
                         // TODO sect.VirtualAddress);
                 resbuf.position(0);
