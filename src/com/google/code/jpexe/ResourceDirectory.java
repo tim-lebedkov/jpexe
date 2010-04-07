@@ -6,36 +6,23 @@ import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
 
-public class ResourceDirectory {
+/**
+ * List of resources.
+ */
+public class ResourceDirectory implements BinaryRecord {
+    private long location;
+
     long Characteristics; // uint32_t
     public long TimeDateStamp; // uint32_t
     int MajorVersion; // uint16_t
     int MinorVersion; // uint16_t
     // int NumberOfNamedEntries; // uint16_t
     // int NumberOfIdEntries; // uint16_t
+
     List<ResourceEntry> NamedEntries =
             new ArrayList<ResourceEntry>();
     List<ResourceEntry> IdEntries =
             new ArrayList<ResourceEntry>();
-
-    public ResourceDirectory(ByteBuffer header) {
-        Characteristics = header.getInt();
-        TimeDateStamp = header.getInt();
-        MajorVersion = header.getShort();
-        MinorVersion = header.getShort();
-        short NumberOfNamedEntries = header.getShort();
-        short NumberOfIdEntries = header.getShort();
-        for (int i = 0; i < NumberOfNamedEntries;
-                i++) {
-            ResourceEntry re = new ResourceEntry(header);
-            NamedEntries.add(re);
-        }
-        for (int i = 0; i < NumberOfIdEntries;
-                i++) {
-            ResourceEntry re = new ResourceEntry(header);
-            IdEntries.add(re);
-        }
-    }
 
     public void addNamedEntry(ResourceEntry entry) {
         this.NamedEntries.add(entry);
@@ -109,31 +96,6 @@ public class ResourceDirectory {
         return size;
     }
 
-    public int buildBuffer(ByteBuffer buffer, long virtualBaseOffset) {
-        //			System.out.println("Building Directory Entry buffer @ " + buffer.position());
-        buffer.putInt((int) this.Characteristics);
-        buffer.putInt((int) this.TimeDateStamp);
-        buffer.putShort((short) this.MajorVersion);
-        buffer.putShort((short) this.MinorVersion);
-        buffer.putShort((short) this.NamedEntries.size());
-        buffer.putShort((short) this.IdEntries.size());
-        int dataOffset =
-                buffer.position() + (NamedEntries.size() * 8) +
-                (IdEntries.size() * 8);
-        for (int i = 0; i < this.NamedEntries.size();
-                i++) {
-            ResourceEntry re = this.NamedEntries.get(i);
-            dataOffset = re.buildBuffer(buffer, virtualBaseOffset, dataOffset);
-        }
-        for (int i = 0; i < this.IdEntries.size();
-                i++) {
-            ResourceEntry re = this.IdEntries.get(i);
-            dataOffset = re.buildBuffer(buffer, virtualBaseOffset, dataOffset);
-        }
-        buffer.position(dataOffset);
-        return dataOffset;
-    }
-
     public ResourceEntry getResourceEntry(String name) {
         // If name == null, get the first entry in lexical
         // order. If no entry in lexical order, choose the
@@ -176,6 +138,61 @@ public class ResourceDirectory {
         }
         return null;
     }
+
+    public long getLocation() {
+        return location;
+    }
+
+    public void setLocation(long location) {
+        this.location = location;
+    }
+
+    public ByteBuffer getData() {
+        long virtualBaseOffset = 100; // TODO
+        ByteBuffer buffer = ByteBuffer.allocate(100); // TODO
+        //			System.out.println("Building Directory Entry buffer @ " + buffer.position());
+        buffer.putInt((int) this.Characteristics);
+        buffer.putInt((int) this.TimeDateStamp);
+        buffer.putShort((short) this.MajorVersion);
+        buffer.putShort((short) this.MinorVersion);
+        buffer.putShort((short) this.NamedEntries.size());
+        buffer.putShort((short) this.IdEntries.size());
+        int dataOffset =
+                buffer.position() + (NamedEntries.size() * 8) +
+                (IdEntries.size() * 8);
+        for (int i = 0; i < this.NamedEntries.size();
+                i++) {
+            ResourceEntry re = this.NamedEntries.get(i);
+            dataOffset = re.buildBuffer(buffer, virtualBaseOffset, dataOffset);
+        }
+        for (int i = 0; i < this.IdEntries.size();
+                i++) {
+            ResourceEntry re = this.IdEntries.get(i);
+            dataOffset = re.buildBuffer(buffer, virtualBaseOffset, dataOffset);
+        }
+        buffer.position(dataOffset);
+        return buffer;
+    }
+
+    public void setData(ByteBuffer header) {
+        Characteristics = header.getInt();
+        TimeDateStamp = header.getInt();
+        MajorVersion = header.getShort();
+        MinorVersion = header.getShort();
+        short NumberOfNamedEntries = header.getShort();
+        short NumberOfIdEntries = header.getShort();
+        for (int i = 0; i < NumberOfNamedEntries;
+                i++) {
+            ResourceEntry re = new ResourceEntry(header);
+            NamedEntries.add(re);
+        }
+        for (int i = 0; i < NumberOfIdEntries;
+                i++) {
+            ResourceEntry re = new ResourceEntry(header);
+            IdEntries.add(re);
+        }
+    }
+    
     /**
      * Returns an entry with the specified ID. Creates a new entry if it
      * does not exist

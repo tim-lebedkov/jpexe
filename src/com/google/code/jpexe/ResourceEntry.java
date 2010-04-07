@@ -56,7 +56,8 @@ public  class ResourceEntry {
             long orgpos = buf.position();
             /*buf.position((int) (PEResourceDirectory_this.offset +
                     offsetToData)); todo */
-            Directory = new ResourceDirectory(buf);
+            Directory = new ResourceDirectory();
+            // TODO setData?
             buf.position((int) orgpos);
         } else {
             Data = new ResourceDataEntry(buf/* todo, offsetToData*/);
@@ -165,8 +166,8 @@ public  class ResourceEntry {
 
             int oldpos = buffer.position();
             buffer.position(dataOffset);
-            int dirsize = Directory.buildBuffer(buffer, virtualBaseOffset);
-            dataOffset = dirsize;
+            // todo int dirsize = Directory.buildBuffer(buffer, virtualBaseOffset);
+            // dataOffset = dirsize;
             buffer.position(oldpos);
 
         } else if (Data != null) {

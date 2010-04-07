@@ -106,7 +106,7 @@ public class PEFile {
             offset += 40;
         }
 
-        ByteBuffer resbuf = null;
+        /*ByteBuffer resbuf = null;
         long resourceoffset = header.ResourceDirectory_VA;
         for (int i = 0; i < seccount; i++) {
             SectionHeader sect = sections.get(i);
@@ -116,7 +116,7 @@ public class PEFile {
                 // TODO resbuf = prd.buildResource(sect.VirtualAddress);
                 break;
             }
-        }
+        } todo */
     }
 
     public FileChannel getChannel() {
@@ -137,7 +137,7 @@ public class PEFile {
         for (int i = 0; i < sections.size(); i++) {
             SectionHeader sect = sections.get(i);
             if (sect.VirtualAddress == resourceoffset) {
-                resourceDir = new ResourceDirectory(null);
+                resourceDir = new ResourceDirectory();
                 mbb.position((int) sect.PointerToRawData);
                 // TODO resourceDir.setData(mbb);
                 return resourceDir;
