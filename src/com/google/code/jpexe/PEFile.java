@@ -34,6 +34,7 @@ public class PEFile {
     private File file;
     private FileInputStream in = null;
     private FileChannel channel = null;
+    private MappedByteBuffer mbb;
 
     private PEOldMSHeader oldMSDOSHeader;
 
@@ -48,7 +49,7 @@ public class PEFile {
 
     private List<PESectionHeader> sections = new ArrayList<PESectionHeader>();
 
-    private PEResourceDirectory m_resourceDir;
+    private PEResourceDirectory resourceDir;
 
     /**
      * Creates a new instance of PEFile
@@ -69,14 +70,15 @@ public class PEFile {
 
     public void close() throws IOException {
         in.close();
+        in = null;
+        mbb = null;
     }
 
     public void open() throws IOException {
         in = new FileInputStream(file);
         channel = in.getChannel();
 
-        MappedByteBuffer mbb =
-                channel.map(MapMode.READ_ONLY, 0, channel.size());
+        mbb = channel.map(MapMode.READ_ONLY, 0, channel.size());
         mbb.order(ByteOrder.LITTLE_ENDIAN);
 
         // read the MS-DOS header (starts with 'MZ')
@@ -123,17 +125,27 @@ public class PEFile {
         return channel;
     }
 
-    public PEResourceDirectory getResourceDirectory() throws IOException {
-        if (m_resourceDir != null) {
-            return m_resourceDir;
+    /**
+     * Returns the existing resource directory.
+     *
+     * @return resource directory or null if it does not exist
+     */
+    public PEResourceDirectory getResourceDirectory() {
+        if (resourceDir != null) {
+            return resourceDir;
         }
 
         long resourceoffset = header.ResourceDirectory_VA;
         for (int i = 0; i < sections.size(); i++) {
             PESectionHeader sect = sections.get(i);
             if (sect.VirtualAddress == resourceoffset) {
-                // TODO m_resourceDir = new PEResourceDirectory(this, sect);
-                return m_resourceDir;
+                resourceDir = new PEResourceDirectory(
+                        sect.PointerToRawData, sect.VirtualAddress,
+                        sect.PointerToRawData,
+                        sect.VirtualAddress);
+                mbb.position((int) sect.PointerToRawData);
+                resourceDir.setData(mbb);
+                return resourceDir;
             }
         }
 
@@ -145,7 +157,7 @@ public class PEFile {
      *
      * @param s new section. VirtualAddress will be set automatically.
      */
-    public void addSection(PESectionHeader s) {
+    public void addSectionHeader(PESectionHeader s) {
         long va = -1;
         for (PESectionHeader s2: this.sections) {
             if (s2.VirtualAddress > va) {
@@ -334,7 +346,7 @@ public class PEFile {
     public void replaceDefaultIcon(ResIcon icon) throws Exception {
         PEResourceDirectory resdir = getResourceDirectory();
 
-        PEResourceDirectory.DataEntry entry = resdir.getData("#14", null, null);
+        ResourceDataEntry entry = resdir.getData("#14", null, null);
         if (entry == null) {
             throw new Exception("Can't find any icon group in the file!");
         }
@@ -345,7 +357,7 @@ public class PEFile {
         ResIconDir rid = new ResIconDir(entry.Data);
         int iconid = rid.getEntries()[0].dwImageOffset;
 
-        PEResourceDirectory.DataEntry iconentry = resdir.getData("#3", "#"
+        ResourceDataEntry iconentry = resdir.getData("#3", "#"
                 + iconid, null);
         iconentry.Data.position(0);
 

@@ -47,6 +47,14 @@ public class PEFileTest {
     }
 
     @Test
+    public void resourceDirectory() throws IOException {
+        PEFile pef = new PEFile(new File("test/7zFM.exe"));
+        pef.open();
+        assertNotNull(pef.getResourceDirectory());
+        pef.close();
+    }
+
+    @Test
     public void countSections() throws IOException {
         PEFile pef = new PEFile(new File("test/7z.exe"));
         pef.open();
