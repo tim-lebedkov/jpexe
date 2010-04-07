@@ -124,6 +124,20 @@ public class PEFile {
     }
 
     /**
+     * @return resource section header or null
+     */
+    public SectionHeader getResourceSectionHeader() {
+        long resourceoffset = header.resourceDirectory_VA;
+        for (int i = 0; i < sections.size(); i++) {
+            SectionHeader sect = sections.get(i);
+            if (sect.virtualAddress == resourceoffset) {
+                return sect;
+            }
+        }
+        return null;
+    }
+
+    /**
      * Returns the existing resource directory.
      *
      * @return resource directory or null if it does not exist
@@ -133,18 +147,14 @@ public class PEFile {
             return resourceDir;
         }
 
-        long resourceoffset = header.resourceDirectory_VA;
-        for (int i = 0; i < sections.size(); i++) {
-            SectionHeader sect = sections.get(i);
-            if (sect.virtualAddress == resourceoffset) {
-                resourceDir = new ResourceDirectory();
-                mbb.position((int) sect.pointerToRawData);
-                resourceDir.setData(mbb);
-                return resourceDir;
-            }
+        SectionHeader sect = getResourceSectionHeader();
+        if (sect != null) {
+            resourceDir = new ResourceDirectory();
+            mbb.position((int) sect.pointerToRawData);
+            resourceDir.setData(mbb);
         }
-
-        return null;
+        
+        return resourceDir;
     }
 
     /**

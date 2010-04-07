@@ -217,13 +217,18 @@ public class ResourceDirectory implements BinaryRecord {
      *
      * @param buf file. The position of the buffer will not change.
      * @param resourceSectionOffset offset of the resource section
+     * @param resourceSectionVirtualAddress virtual address of the resource
+     *     section
      */
-    public void materialize(ByteBuffer buf, int resourceSectionOffset) {
+    public void materialize(ByteBuffer buf, int resourceSectionOffset,
+            int resourceSectionVirtualAddress) {
         for (ResourceEntry re : namedEntries) {
-            re.materialize(buf, resourceSectionOffset);
+            re.materialize(buf, resourceSectionOffset,
+                    resourceSectionVirtualAddress);
         }
         for (ResourceEntry re : this.idEntries) {
-            re.materialize(buf, resourceSectionOffset);
+            re.materialize(buf, resourceSectionOffset,
+                    resourceSectionVirtualAddress);
         }
     }
 

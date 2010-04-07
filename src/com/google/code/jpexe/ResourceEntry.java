@@ -175,8 +175,11 @@ public class ResourceEntry implements BinaryRecord {
      *
      * @param buf file. The position of the buffer will not change.
      * @param resourceSectionOffset offset of the resource section
+     * @param resourceSectionVirtualAddress virtual address of the resource
+     *     section
      */
-    public void materialize(ByteBuffer buf, int resourceSectionOffset) {
+    public void materialize(ByteBuffer buf, int resourceSectionOffset,
+            int resourceSectionVirtualAddress) {
         int oldPos_ = buf.position();
 
         int val = nameOrId;
@@ -189,9 +192,6 @@ public class ResourceEntry implements BinaryRecord {
             us.setData(buf);
             this.name = us.getText();
             buf.position(oldPos);
-            nameOrId = -1;
-        } else {
-            nameOrId = val;
         }
 
         if (offsetToData < 0) {
@@ -201,12 +201,16 @@ public class ResourceEntry implements BinaryRecord {
             directory = new ResourceDirectory();
             directory.setData(buf);
             buf.position((int) oldPos);
+            directory.materialize(buf, resourceSectionOffset,
+                    resourceSectionVirtualAddress);
         } else {
             data = new ResourceDataEntry();
             int oldPos = buf.position();
             buf.position(offsetToData + resourceSectionOffset);
             data.setData(buf);
             buf.position(oldPos);
+            data.materialize(buf, resourceSectionOffset,
+                    resourceSectionVirtualAddress);
         }
 
         buf.position(oldPos_);

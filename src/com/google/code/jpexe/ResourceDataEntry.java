@@ -21,7 +21,7 @@ package com.google.code.jpexe;
 
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
-import java.util.Map;
+import java.nio.ByteOrder;
 
 /**
  * data for a resource entry.
@@ -33,6 +33,7 @@ public class ResourceDataEntry implements BinaryRecord {
     long size;
     long codePage; // never changed
     long reserved; // never changed
+
     ByteBuffer data;
 
     public int diskSize() {
@@ -68,25 +69,11 @@ public class ResourceDataEntry implements BinaryRecord {
         }
     }
 
-    public void setData(ByteBuffer data) {
-        this.data = data;
-        size = data.capacity();
-        ByteBuffer buf = data;
+    public void setData(ByteBuffer buf) {
         offsetToData = buf.getInt();
         size = buf.getInt();
         codePage = buf.getInt();
         reserved = buf.getInt();
-        /* todo
-        long datapos = PEResourceDirectory.this.pointerToRawData + (offsetToData
-        - PEResourceDirectory.this.virtualAddress);
-        data = ByteBuffer.allocate((int) size);
-        data.order(ByteOrder.LITTLE_ENDIAN);
-        chan.position(datapos);
-        chan.read(data);
-        data.position(0);
-        chan.position(orgpos);
-         *
-         */
     }
 
     public long getLocation() {
@@ -114,5 +101,29 @@ public class ResourceDataEntry implements BinaryRecord {
             dataOffset += (4 - (dataOffset % 4));
         }
         return buffer;
+    }
+
+    /**
+     * Loads all dependant objects so that the file can be closed and re-created
+     * only from the data in memory.
+     *
+     * @param buf file. The position of the buffer will not change.
+     * @param resourceSectionOffset offset of the resource section
+     * @param resourceSectionVirtualAddress virtual address of the resource
+     *     section
+     */
+    public void materialize(ByteBuffer buf, int resourceSectionOffset,
+            int resourceSectionVirtualAddress) {
+        int oldPos = buf.position();
+
+        long datapos = this.offsetToData;
+        buf.position((int) datapos - resourceSectionVirtualAddress +
+                resourceSectionOffset);
+
+        this.data = ByteBuffer.allocate((int) size);
+        data.order(ByteOrder.LITTLE_ENDIAN);
+        buf.get(data.array());
+
+        buf.position(oldPos);
     }
 }

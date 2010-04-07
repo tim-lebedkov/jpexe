@@ -53,7 +53,8 @@ public class PEFileTest {
         final ResourceDirectory rd = pef.getResourceDirectory();
         assertNotNull(rd);
         pef.getResourceDirectory().materialize(pef.getByteBuffer(),
-                pef.header.resourceDirectory_VA);
+                (int) pef.getResourceSectionHeader().pointerToRawData,
+                (int) pef.getResourceSectionHeader().virtualAddress);
         pef.close();
     }
 
