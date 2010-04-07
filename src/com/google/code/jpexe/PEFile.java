@@ -105,18 +105,6 @@ public class PEFile {
             sections.add(sect);
             offset += 40;
         }
-
-        /*ByteBuffer resbuf = null;
-        long resourceoffset = header.resourceDirectory_VA;
-        for (int i = 0; i < seccount; i++) {
-            SectionHeader sect = sections.get(i);
-            if (sect.virtualAddress == resourceoffset) {
-                // TODO
-                ResourceDirectory prd = new ResourceDirectory(null);
-                // TODO resbuf = prd.buildResource(sect.virtualAddress);
-                break;
-            }
-        } todo */
     }
 
     public FileChannel getChannel() {

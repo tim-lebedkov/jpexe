@@ -55,6 +55,7 @@ public class PEFileTest {
         pef.getResourceDirectory().materialize(pef.getByteBuffer(),
                 (int) pef.getResourceSectionHeader().pointerToRawData,
                 (int) pef.getResourceSectionHeader().virtualAddress);
+        // pef.getResourceDirectory().dump(System.out, 0);
         pef.close();
     }
 
