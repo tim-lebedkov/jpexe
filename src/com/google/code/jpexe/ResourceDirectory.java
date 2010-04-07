@@ -24,6 +24,7 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Map;
 
 /**
  * List of resources.
@@ -202,14 +203,19 @@ public class ResourceDirectory implements BinaryRecord {
         short NumberOfIdEntries = header.getShort();
         for (int i = 0; i < NumberOfNamedEntries;
                 i++) {
-            // TODO ResourceEntry re = new ResourceEntry(header);
-            // TODO namedEntries.add(re);
+            ResourceEntry re = new ResourceEntry();
+            re.setData(header);
+            namedEntries.add(re);
         }
         for (int i = 0; i < NumberOfIdEntries;
                 i++) {
-            // TODO ResourceEntry re = new ResourceEntry(header);
-            // TODO idEntries.add(re);
+            ResourceEntry re = new ResourceEntry();
+            re.setData(header);
+            idEntries.add(re);
         }
+    }
+
+    public void materialize(Map<String, Object> lookup) {
     }
     
     /**

@@ -21,6 +21,7 @@ package com.google.code.jpexe;
 
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
+import java.util.Map;
 
 /**
  * data for a resource entry.
@@ -113,5 +114,8 @@ public class ResourceDataEntry implements BinaryRecord {
             dataOffset += (4 - (dataOffset % 4));
         }
         return buffer;
+    }
+
+    public void materialize(Map<String, Object> lookup) {
     }
 }

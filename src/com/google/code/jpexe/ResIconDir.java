@@ -20,6 +20,7 @@
 package com.google.code.jpexe;
 
 import java.nio.*;
+import java.util.Map;
 
 /**
  * Directory of icons in the resource section ?
@@ -84,5 +85,8 @@ public class ResIconDir implements BinaryRecord {
         for (int i = 0; i < idCount; i++) {
             entries[i] = new IconDirEntry(buf);
         }
+    }
+
+    public void materialize(Map<String, Object> lookup) {
     }
 }

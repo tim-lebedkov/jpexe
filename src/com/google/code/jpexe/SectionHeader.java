@@ -21,6 +21,7 @@ package com.google.code.jpexe;
 
 import java.io.*;
 import java.nio.*;
+import java.util.Map;
 
 /**
  * A section header in a PE file.
@@ -173,5 +174,8 @@ public class SectionHeader implements Cloneable, BinaryRecord {
 
     public void setLocation(long location) {
         this.m_baseoffset = location;
+    }
+
+    public void materialize(Map<String, Object> lookup) {
     }
 }

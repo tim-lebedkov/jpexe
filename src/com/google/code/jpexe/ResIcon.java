@@ -130,6 +130,9 @@ public class ResIcon implements BinaryRecord {
         }
     }
 
+    public void materialize(Map<String, Object> lookup) {
+    }
+
     public class PaletteElement {
 
         public int Blue;

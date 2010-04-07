@@ -22,6 +22,7 @@ package com.google.code.jpexe;
 import java.io.PrintStream;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.util.Map;
 
 /**
  * Entry in a resource directory.
@@ -34,6 +35,12 @@ public class ResourceEntry implements BinaryRecord {
     public ResourceDirectory directory;
     public ResourceDataEntry data;
     private ResourceDirectory resourceDirectory_this;
+
+    /**
+     * Default constructor can be used to read the data from a ByteBuffer
+     */
+    public ResourceEntry() {
+    }
 
     public ResourceEntry(int id, ResourceDataEntry data) {
         this.id = id;
@@ -53,33 +60,6 @@ public class ResourceEntry implements BinaryRecord {
     public ResourceEntry(String name, ResourceDirectory dir) {
         this.name = name;
         this.directory = dir;
-    }
-
-    public String extractStringAt(ByteBuffer chan, int offset) {
-        long orgchanpos = chan.position();
-        // TODO chan.position((int) (PEResourceDirectory_this.offset + offset));
-
-        /* todo
-        ByteBuffer sizebuf = ByteBuffer.allocate(2);
-        sizebuf.order(ByteOrder.LITTLE_ENDIAN);
-        chan.read(sizebuf);
-        sizebuf.position(0);
-
-        int size = sizebuf.getShort();
-        ByteBuffer buffer = ByteBuffer.allocate(size * 2);
-        buffer.order(ByteOrder.LITTLE_ENDIAN);
-        chan.read(buffer);
-        buffer.position(0);
-
-        StringBuffer buf = new StringBuffer(size);
-        for (int i = 0; i < size; i++) {
-            int c = buffer.getShort();
-            buf.append((char) c);
-        }
-
-        chan.position(orgchanpos);
-        return buf.toString();*/
-        return "a";
     }
 
     public int diskSize() {
@@ -133,10 +113,8 @@ public class ResourceEntry implements BinaryRecord {
     }
 
     public ByteBuffer getData() {
-        long virtualBaseOffset = 0; // TODO
         int dataOffset = 0; // TODO
         ByteBuffer buffer = ByteBuffer.allocate(100); // TODO
-        //			System.out.println("Building Resource Entry buffer  " + name + "/" + id + " @ " + buffer.position() + " (" + dataOffset + ")");
         if (name != null) {
             buffer.putInt(dataOffset | 0x80000000);
 
@@ -186,31 +164,40 @@ public class ResourceEntry implements BinaryRecord {
     }
 
     public void setData(ByteBuffer buf) {
-        long orgchanpos = buf.position();
         int val = buf.getInt();
         long offsetToData = buf.getInt();
-        // 			System.out.println("Entry: Val=" + val);
-        // 			System.out.println("       Off=" + offsetToData);
 
         if (val < 0) {
             val &= 0x7FFFFFFF;
-            name = extractStringAt(buf, val);
+            int oldPos = buf.position();
+            UnicodeString us = new UnicodeString();
+            buf.position(val);
+            us.setData(buf);
+            this.name = us.getText();
+            buf.position(oldPos);
             id = -1;
-            //				System.out.println("    String at " + val + " = " + name);
         } else {
             id = val;
         }
 
         if (offsetToData < 0) {
             offsetToData &= 0x7FFFFFFF;
-            long orgpos = buf.position();
-            /*buf.position((int) (PEResourceDirectory_this.offset +
+            long oldPos = buf.position();
+            buf.position((int) offsetToData);
+            /* buf.position((int) (esourceDirectory_this.offset +
                     offsetToData)); todo */
             directory = new ResourceDirectory();
-            // TODO setData?
-            buf.position((int) orgpos);
+            directory.setData(buf);
+            buf.position((int) oldPos);
         } else {
-            // TODO data = new ResourceDataEntry(buf/* todo, offsetToData*/);
+            data = new ResourceDataEntry();
+            int oldPos = buf.position();
+            buf.position((int) offsetToData);
+            data.setData(buf);
+            buf.position(oldPos);
         }
+    }
+
+    public void materialize(Map<String, Object> lookup) {
     }
 }

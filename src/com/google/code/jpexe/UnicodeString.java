@@ -20,24 +20,25 @@
 package com.google.code.jpexe;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.Map;
 
 /**
- * A binary record that simply reads/writes the specified amount of bytes.
+ * A Unicode string.
  */
-public class SimpleBinaryRecord implements BinaryRecord {
+public class UnicodeString implements BinaryRecord {
     private long location;
-    private ByteBuffer data;
+    private String data = "";
 
     /**
-     * @param size size of the record in bytes
+     * Empty string.
      */
-    public SimpleBinaryRecord(int size) {
-        this.data = ByteBuffer.allocate(size);
+    public UnicodeString() {
+        this.data = "";
     }
 
     public long getLocation() {
-        return this.location;
+        return location;
     }
 
     public void setLocation(long location) {
@@ -45,12 +46,29 @@ public class SimpleBinaryRecord implements BinaryRecord {
     }
 
     public ByteBuffer getData() {
-        data.position(0);
-        return data;
+        throw new UnsupportedOperationException("Not supported yet.");
     }
 
     public void setData(ByteBuffer data) {
-        data.get(this.data.array());
+        short size = data.getShort();
+        ByteBuffer buffer = ByteBuffer.allocate(size * 2);
+        buffer.order(ByteOrder.LITTLE_ENDIAN);
+        data.get(buffer.array());
+
+        StringBuilder buf = new StringBuilder(size);
+        for (int i = 0; i < size; i++) {
+            int c = buffer.getShort();
+            buf.append((char) c);
+        }
+
+        this.data = buf.toString();
+    }
+
+    /**
+     * @return content
+     */
+    public String getText() {
+        return this.data;
     }
 
     public void materialize(Map<String, Object> lookup) {

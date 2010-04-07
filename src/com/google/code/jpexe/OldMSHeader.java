@@ -21,6 +21,7 @@ package com.google.code.jpexe;
 
 import java.io.*;
 import java.nio.*;
+import java.util.Map;
 
 /**
  * Old MSDOS 2.0 .exe header.
@@ -166,5 +167,8 @@ public class OldMSHeader implements Cloneable, BinaryRecord {
     public void setLocation(long location) {
         throw new IllegalArgumentException(
                 "MSDOS 2.0 exe header is always at the offset 0");
+    }
+
+    public void materialize(Map<String, Object> lookup) {
     }
 }
